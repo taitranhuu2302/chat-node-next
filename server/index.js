@@ -2,37 +2,45 @@ const app = require("express")();
 const cors = require("cors");
 const server = require("http").createServer(app);
 const path = require("path");
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
+const passport = require('passport');
+const session = require('express-session')
 
 // Configuration
-dotenv.config({ path: path.join(__dirname, "config.env") });
+dotenv.config({path: path.join(__dirname, "config.env")});
 
 // Database
-const connectDB = require("./utils/Database");
-connectDB();
+require("./utils/Database")();
 
+app.use(session({
+    secret: 'SECRET',
+    resave: true,
+    saveUninitialized: true
+}));
+require('./utils/Passport');
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
     cors({
-        origin: ["http://localhost:3000"],
+        origin: "*",
         methods: "*",
         credentials: true,
     })
 );
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(logger("dev"));
-
 
 
 // Socket io
 const socket = require("./socket");
 const io = new Server(server, {
-    cors: { origin: ["http://localhost:3000"] },
+    cors: {origin: ["http://localhost:3000"]},
 });
 
 app.use((req, res, next) => {
@@ -46,6 +54,9 @@ socket(io);
 const router = require("./routes/index");
 router(app);
 
+
 // Running server
-const PORT = 4000;
-server.listen(PORT, console.log(`server running on PORT ${PORT}`));
+const PORT = process.env.PORT;
+server.listen(PORT, () => {
+    console.log(`server running on PORT ${PORT}`)
+});
