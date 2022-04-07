@@ -8,6 +8,7 @@ class AuthController {
             const data = {
                 _id: req.user._id
             }
+
             const token = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '1d'});
 
             return res.json(ResponseObject(200, 'Get Me Success', token));

@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 
-export const PRIVATE_ROOM = "PRIVATE_ROOM";
-export const GROUP_ROOM = "GROUP_ROOM";
-
 
 const roomSchema = new mongoose.Schema(
     {
