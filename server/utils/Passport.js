@@ -8,7 +8,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-    User.findById({_id: id}, {
+    User.findById({ _id: id }, {
         password: 0
     })
         .then(user => {
@@ -17,24 +17,29 @@ passport.deserializeUser((id, done) => {
 });
 
 passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:4000/auth/google/callback",
-    },
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:4000/auth/google/callback",
+},
     async function (accessToken, refreshToken, profile, done) {
-        await User.findOne({googleId: profile.id})
-            .then(async (data) => {
-                if (data) {
-                    done(null, data);
-                } else {
-                    const password = await bcrypt.hash('123123', 10);
-                    new User({
-                        googleId: profile.id,
-                        email: profile.emails[0].value,
-                        full_name: `${profile.name.familyName} ${profile.name.givenName}`,
-                        password
-                    }).save().then(user => done(null, user));
-                }
-            })
+        try {
+            await User.findOne({ googleId: profile.id })
+                .then(async (data) => {
+                    if (data) {
+                        done(null, data);
+                    } else {
+                        const password = await bcrypt.hash('123123', 10);
+                        new User({
+                            googleId: profile.id,
+                            email: profile.emails[0].value,
+                            full_name: profile.displayName,
+                            password,
+                            avatar: profile.photos[0].value
+                        }).save().then(user => done(null, user));
+                    }
+                })
+        } catch (e) {
+            throw new Error(e);
+        }
     }
 ));

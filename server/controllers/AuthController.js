@@ -1,20 +1,23 @@
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const ResponseObject = require('../models/ResponseObject');
 class AuthController {
 
-    getMe(req, res) {
+    async getToken(req, res) {
         if (req.user) {
             const data = {
                 _id: req.user._id
             }
 
-            const token = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '1d'});
+            const token = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1d' });
+            await res.cookie("auth", token, {
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24), // 1000 * 60 * 60 * 24 -> 1 ngày
+            })
 
-            return res.json(ResponseObject(200, 'Get Me Success', token));
-
+            return res.redirect(process.env.URL_CLIENT);
         } else {
-            return res.json(ResponseObject(403, 'Unauthorized'))
+            return res.status(400).json(ResponseObject(400, 'Authentication failed!'))
         }
     }
 }

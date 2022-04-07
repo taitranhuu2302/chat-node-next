@@ -1,0 +1,69 @@
+.wrapperLogin {
+  background: url('https://devforum.info/DEMO/LoginForm1/bg.jpg') no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+
+  .title {
+    font-weight: bold;
+    margin-bottom: 60px;
+  }
+
+  .formLogin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: white;
+    padding: 60px 40px;
+    border-radius: 5px;
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .inputForm {
+      margin-bottom: 15px;
+    }
+
+    .wrapperButton {
+      display: flex;
+      justify-content: center;
+
+      .btnLogin {
+        width: 100%;
+        height: 100%;
+        border: none;
+        outline: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: white;
+        background: -webkit-linear-gradient(right, #5690e9, #e713fd);
+      }
+    }
+
+    .footerLogin {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      margin-top: 20px;
+
+      .wrapperButtonFooter {
+        display: flex;
+        margin-top: 10px;
+        gap: 20px;
+        .buttonFace {
+          text-transform: capitalize;
+          font-weight: bold;
+        }
+        .buttonGoogle {
+          text-transform: capitalize;
+          border: 1px solid #dd4b39;
+          color: #dd4b39;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}

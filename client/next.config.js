@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-}
+const withImage = require("next-images");
+const path = require("path");
 
-module.exports = nextConfig
+module.exports = withImage({
+    sassOptions: {
+        includePaths: [path.join(__dirname, "styles")]
+    },
+    reactStrictMode: true,
+    env: {
+        URL_SERVER: process.env.URL_SERVER,
+        URL_CLIENT: process.env.URL_CLIENT,
+        URL_API: process.env.URL_API,
+        URL_LOGIN_GOOGLE: process.env.URL_LOGIN_GOOGLE,
+        URL_LOGIN_GOOGLE_CALLBACK: process.env.URL_LOGIN_GOOGLE_CALLBACK,
+
+    }
+})
