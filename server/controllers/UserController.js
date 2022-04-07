@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
 const ResponseObject = require('../models/ResponseObject');
 const User = require('../models/User')
+const Room = require('../models/Room')
+const ROOM_TYPE = require('../constants/RoomType')
 
 class UserController {
 
     async findAll(req, res) {
         try {
-            await User.find({}, {password: 0})
+            await User.find({}, { password: 0 })
                 .then(data => {
                     return res.status(200).json(ResponseObject(200, "Find All User Success", data))
                 })
@@ -17,7 +18,7 @@ class UserController {
 
     async findById(req, res) {
         try {
-            await User.findById(req.userId, {password: 0})
+            await User.findById(req.userId, { password: 0 })
                 .populate([
                     {
                         path: 'friends',
@@ -29,7 +30,17 @@ class UserController {
                     },
                     {
                         path: 'rooms',
-                        select: '_id name avatar owner',
+                        select: '_id name avatar room_type',
+                        populate: [
+                            {
+                                path: 'owner',
+                                select: '_id email full_name avatar',
+                            },
+                            {
+                                path: 'members',
+                                select: '_id email full_name avatar',
+                            }
+                        ],
                     }
                 ])
                 .then(data => {
@@ -113,25 +124,32 @@ class UserController {
                 _id: idUserCurrent,
                 friend_pending: idUserAccept
             })
-            const userAccept = await User.findOne({_id: idUserAccept})
+            const userAccept = await User.findOne({ _id: idUserAccept })
 
             if (!userCurrent || !userAccept) {
                 return res.status(404).json(ResponseObject(404, "User Not Found"))
             }
 
+            const room = new Room();
+            room.members.push(idUserCurrent, idUserAccept);
+            room.room_type = ROOM_TYPE.PRIVATE_ROOM;
+            room.save();
+
             userCurrent.friend_pending = userCurrent.friend_pending.filter(userId => userId.toString() !== idUserAccept)
             userCurrent.friends.push(idUserAccept)
-            console.log("User Current: ", userCurrent);
+            userCurrent.rooms.push(room)
             userCurrent.save();
 
             userAccept.friends.push(idUserCurrent)
-            console.log("User Accept: ", userAccept);
+            userAccept.rooms.push(room)
             userAccept.save();
+
+
 
             return res.status(200).json(ResponseObject(200, "Accept User Success"))
 
         } catch
-            (e) {
+        (e) {
             return res.status(500).json(ResponseObject(500, e.message))
         }
     }
@@ -148,7 +166,7 @@ class UserController {
                 _id: idUserCurrent,
                 friend_pending: idUserCancel
             })
-            const userCancel = await User.findOne({_id: idUserCancel})
+            const userCancel = await User.findOne({ _id: idUserCancel })
 
             if (!userCurrent || !userCancel) {
                 return res.status(404).json(ResponseObject(404, "User Not Found"))
@@ -180,7 +198,7 @@ class UserController {
                 _id: idUserCurrent,
                 friends: idUserCancel
             })
-            const userCancel = await User.findOne({_id: idUserCancel})
+            const userCancel = await User.findOne({ _id: idUserCancel })
 
             if (!userCurrent || !userCancel) {
                 return res.status(404).json(ResponseObject(404, "User Not Found"))
