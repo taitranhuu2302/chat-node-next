@@ -1,27 +1,34 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import Cookies from "universal-cookie";
 import LoadingComponent from "../../../components/Loading.component";
+import {googleCallbackApi} from "../../../api/GoogleCallback.api";
+import {useRouter} from 'next/router';
 
 type Props = {}
 
 const GoogleLogin: React.FC<Props> = (props) => {
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${process.env.URL_LOGIN_GOOGLE_CALLBACK}${window.location.search}`, {
-            method: 'GET',
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data)
-                // if (data.status === 200) {
-                //      const cookie = new Cookies();
-                //      cookie.set('token_login', data.body.token, {path: '/', expires: new Date(Date.now() + (1000 * 60 * 60 * 24))});
-                //      window.location.href = '/';
-                // }
-            })
-    }, []);
+        const query = window.location.search;
+        const cookies = new Cookies();
 
-    return <><LoadingComponent/></>
+        (async () => {
+            const data = await googleCallbackApi(query);
+            if (data?.status === 200) {
+                const {token, expires_in} = data.body;
+                cookies.set('auth', token, {path: '/', expires: new Date(Date.now() + expires_in)});
+                await router.replace('/');
+            } else {
+                await router.replace('/login');
+            }
+        })()
+    }, [router]);
+
+    return <>
+        <LoadingComponent/>
+    </>
 }
 
 export default GoogleLogin;

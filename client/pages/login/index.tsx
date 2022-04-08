@@ -58,15 +58,12 @@ const Login: NextPage<Props> = () => {
                     <Box
                         className={styles.footerLogin}
                     >
-                        <Typography>Or Login with</Typography>
+                        <Box className={styles.wrapperCaption}>
+                            <Box className={styles.line}/>
+                            <Typography className={styles.captionText}>Or Login with</Typography>
+                            <Box className={styles.line}/>
+                        </Box>
                         <Box className={styles.wrapperButtonFooter}>
-                            <Button
-                                className={styles.buttonFace}
-                                variant={"outlined"}
-                                startIcon={<FacebookIcon/>}
-                            >
-                                Facebook
-                            </Button>
                             <Button
                                 variant={"outlined"}
                                 startIcon={<GoogleIcon sx={{color: "#dd4b39"}}/>}
@@ -79,8 +76,12 @@ const Login: NextPage<Props> = () => {
                         <Box mt={4}>
                             <Link href="/register">
                                 <a>
-                                    <Typography sx={{textDecoration: "underline", color: "#4a86e8"}}>Do not have an
-                                        account?</Typography>
+                                    <Typography fontSize={14} fontWeight={'bold'} color={'gray'}>
+                                        Dont have an account?
+                                        {" "}
+                                        <Typography component={'span'} sx={{textDecoration: "underline"}}>Sign up
+                                            now</Typography>
+                                    </Typography>
                                 </a>
                             </Link>
                         </Box>
