@@ -1,9 +1,9 @@
-import type {NextPage} from 'next'
+import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import LoadingComponent from '../components/Loading.component'
 import styles from '../styles/Home.module.css'
-import PrivateRoute from "../HOC/PrivateRoute";
+import withAuth from '../HOC/withAuth'
 
 const Home: NextPage = () => {
     return (
@@ -13,5 +13,5 @@ const Home: NextPage = () => {
     )
 }
 
-export default PrivateRoute(Home)
+export default withAuth(Home)
 // export default (Home)
