@@ -1,11 +1,13 @@
 import {configureStore, getDefaultMiddleware, Store} from "@reduxjs/toolkit";
 import {Context, createWrapper} from "next-redux-wrapper";
 import {setupListeners} from "@reduxjs/toolkit/query";
+import tabSlice from "./features/TabSlice";
 
 const middleware = [...getDefaultMiddleware()];
 
 export const store = configureStore({
     reducer: {
+        tabSlice
     },
     middleware,
 });

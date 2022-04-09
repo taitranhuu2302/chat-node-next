@@ -1,10 +1,11 @@
-import { Room } from "./Room";
+import { IRoom } from "./Room";
 
-export interface User {
+export interface IUser {
     id: string;
+    email: string;
     full_name: string;
     avatar: string;
-    rooms: Room[];
-    friends: User[];
-    friend_pending: User[];
+    rooms: IRoom[];
+    friends: IUser[];
+    friend_pending: IUser[];
 }
