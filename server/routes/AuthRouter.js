@@ -3,7 +3,6 @@ const router = require('express').Router();
 const LoginController = require('../controllers/AuthController');
 
 router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
-
 router.get('/google/callback', passport.authenticate('google'), LoginController.getToken);
 
 module.exports = router;

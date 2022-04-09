@@ -4,6 +4,7 @@ import {GetServerSideProps} from "next";
 import MainLayout from "../../layouts/MainLayout";
 import Head from "next/head";
 import ChatComponent from "../../components/Chat.component";
+import withAuth from "../../HOC/withAuth";
 
 export interface IRoomChat {
     id: string;
@@ -32,4 +33,4 @@ export const getServerSideProps: GetServerSideProps = async ({query}) => {
     };
 };
 
-export default RoomChat;
+export default withAuth(RoomChat);

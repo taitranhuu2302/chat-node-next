@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema(
         password: { type: String, required: true },
         avatar: { type: String },
         full_name: { type: String },
+        number_phone: { type: String },
+        address: { type: String },
         status: { type: Number, default: 1 },
         rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
         friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

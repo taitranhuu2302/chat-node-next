@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Box, List, ListItem, ListItemButton, Tab, Tabs, Tooltip} from "@mui/material";
 import Image from "next/image";
 import styles from "../styles/Navigation.module.scss";
@@ -11,7 +11,9 @@ import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOu
 import Link from "next/link";
 import {useAppDispatch, useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
-import {changeTab} from "../app/features/TabSlice";
+import {changeTab} from "../app/features/Tab.slice";
+import ProfileComponent from "./Profile.component";
+import Cookies from "universal-cookie";
 import Router from "next/router";
 
 type Props = {}
@@ -19,11 +21,17 @@ type Props = {}
 const NavigationComponent: React.FC<Props> = () => {
     const {value} = useAppSelector((state: RootState) => state.tabSlice);
     const dispatch = useAppDispatch();
+    const [openProfile, setOpenProfile] = useState<boolean>(false);
+    const cookies = new Cookies();
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         dispatch(changeTab(newValue));
     };
 
+    const onLogout = async () => {
+        cookies.remove('auth', {path: '/', expires: new Date(new Date().getTime())});
+        await Router.replace('/login');
+    }
 
     return <>
         <Box className={styles.root}>
@@ -48,7 +56,7 @@ const NavigationComponent: React.FC<Props> = () => {
 
             <List>
                 <Tooltip title="Edit Profile" placement="right">
-                    <ListItemButton className={styles.listItem}>
+                    <ListItemButton onClick={() => setOpenProfile(true)} className={styles.listItem}>
                         <ModeEditOutlineOutlinedIcon/>
                     </ListItemButton>
                 </Tooltip>
@@ -58,11 +66,12 @@ const NavigationComponent: React.FC<Props> = () => {
                     </ListItemButton>
                 </Tooltip>
                 <Tooltip title="Logout" placement="right">
-                    <ListItemButton className={styles.listItem}>
+                    <ListItemButton onClick={onLogout} className={styles.listItem}>
                         <PowerSettingsNewOutlinedIcon/>
                     </ListItemButton>
                 </Tooltip>
             </List>
+            <ProfileComponent open={openProfile} setOpen={setOpenProfile}/>
         </Box>
     </>
 }
