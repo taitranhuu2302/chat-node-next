@@ -29,13 +29,16 @@ const ChatComponent: React.FC<IChat> = ({room}) => {
     const {user} = useAppSelector((state: RootState) => state.userSlice)
     const {messages} = useAppSelector((state: RootState) => state.messageSlice);
     const [roomName, setRoomName] = useState("");
+    const [roomAvatar, setRoomAvatar] = useState("");
 
     useEffect(() => {
         if (room.room_type === PRIVATE_ROOM) {
             const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
             setRoomName(userDiff.full_name);
+            setRoomAvatar(userDiff.avatar);
         } else {
             setRoomName(room.name)
+            setRoomAvatar(room.avatar)
         }
     }, [room])
 
@@ -44,7 +47,7 @@ const ChatComponent: React.FC<IChat> = ({room}) => {
         <Box className={styles.root}>
             <Box className={styles.chatHeader}>
                 <Box className={styles.title}>
-                    <Avatar src={room.avatar || ""}/>
+                    <Avatar src={roomAvatar}/>
                     <Box>
                         <Typography variant="h6">{roomName}</Typography>
                         <Typography variant="caption">Online</Typography>

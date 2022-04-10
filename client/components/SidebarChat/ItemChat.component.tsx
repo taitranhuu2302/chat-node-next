@@ -34,7 +34,7 @@ const ItemChat: React.FC<ItemChat> = ({name, avatar, id}) => {
 
     return (
         <ListItem
-            sx={{padding: "20px 0"}}
+            sx={{padding: "0"}}
             secondaryAction={
                 <IconButton onClick={handleClick}>
                     <MoreHorizOutlinedIcon/>

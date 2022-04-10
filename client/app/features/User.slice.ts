@@ -29,8 +29,14 @@ const userSlice = createSlice({
         addFriendRequest: (state, action: PayloadAction<IUser>) => {
             state.user.friend_pending.push(action.payload);
         },
-        removeFriendRequest: (state, action: PayloadAction<IUser>) => {
-            state.user.friend_pending = state.user.friend_pending.filter(friend => friend._id !== action.payload._id);
+        removeFriendRequest: (state, action: PayloadAction<{ userId: string }>) => {
+            state.user.friend_pending = state.user.friend_pending.filter(friend => friend._id !== action.payload.userId);
+        },
+        addRoom: (state, action: PayloadAction<IRoom>) => {
+            state.user.rooms.push(action.payload);
+        },
+        addFriend: (state, action: PayloadAction<IUser>) => {
+            state.user.friends.push(action.payload);
         },
     },
     extraReducers: (builder) => {
@@ -41,6 +47,6 @@ const userSlice = createSlice({
     }
 });
 
-export const {addFriendRequest, removeFriendRequest} = userSlice.actions;
+export const {addFriendRequest, removeFriendRequest, addRoom, addFriend} = userSlice.actions;
 
 export default userSlice.reducer;

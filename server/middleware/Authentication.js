@@ -9,6 +9,7 @@ const auth = (req, res, next) => {
         return res.status(403).json(ResponseObject(403, 'Forbidden'))
     } else {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY, (err, data) => {
+            if (err) return res.status(403).json(ResponseObject(403, 'Forbidden'))
             req.userId = data._id;
             next();
         })

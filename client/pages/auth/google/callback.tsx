@@ -8,23 +8,34 @@ type Props = {}
 
 const GoogleLogin: React.FC<Props> = (props) => {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const query = window.location.search;
         const cookies = new Cookies();
 
         (async () => {
-            const data = await googleCallbackApi(query);
-            if (data?.status === 200) {
-                const {token, expires_in} = data.body;
-                cookies.set('auth', token, {path: '/', expires: new Date(Date.now() + expires_in)});
-                await router.replace('/');
-            } else {
-                await router.replace('/login');
+            try {
+                // const data = await googleCallbackApi(query);
+                await fetch(`${process.env.URL_LOGIN_GOOGLE_CALLBACK}${query}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(response => response.json())
+                    .then(async (data) => {
+                        if (data?.status === 200) {
+                            const {token, expires_in} = data.body;
+                            await cookies.set('auth', token, {path: '/', expires: new Date(Date.now() + expires_in)});
+                            await router.push('/');
+                        } else {
+                            await router.replace('/login');
+                        }
+                    })
+            } catch (e) {
+                console.log(e);
             }
         })()
-    }, [router]);
+    }, []);
 
     return <>
         <LoadingComponent/>

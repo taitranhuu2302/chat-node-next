@@ -9,6 +9,13 @@ interface IAddFriend {
     email: string;
 }
 
+interface IRemoveFriendPending {
+    userId: string;
+}
+interface IAcceptFriend {
+    userId: string;
+}
+
 export const userService = createApi({
     reducerPath: "userService",
     baseQuery: fetchBaseQuery({
@@ -33,8 +40,23 @@ export const userService = createApi({
                 body: data
             }),
             invalidatesTags: ['IUser'],
+        }),
+        removeFriendRequest: build.mutation<void, IRemoveFriendPending>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/cancel-friend-pending`,
+                body: data
+            }),
+            invalidatesTags: ['IUser'],
+        }),
+        acceptFriendRequest: build.mutation<void, IAcceptFriend>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/accept-friend`,
+                body: data
+            }),
         })
     }),
 });
 
-export const {useGetUserQuery, useAddFriendMutation} = userService;
+export const {useGetUserQuery, useAddFriendMutation, useRemoveFriendRequestMutation, useAcceptFriendRequestMutation} = userService;

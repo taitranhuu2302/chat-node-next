@@ -13,6 +13,7 @@ const withAuth = (WrappedComponent: any) => {
         const router = useRouter();
         // we call the api that verifies the token.
         const {user} = useAppSelector((state: RootState) => state.userSlice);
+        const {refetch} = useGetUserQuery();
         const cookie = new Cookies();
 
         useEffect(() => {
@@ -22,15 +23,15 @@ const withAuth = (WrappedComponent: any) => {
                 if (!accessToken) {
                     await router.replace("/login");
                 } else {
-                    setTimeout(() => {
-                        if (!user._id) router.replace('/login');
-                    }, 3000)
+                    if (!user?._id) {
+                        refetch();
+                    }
                 }
             })()
         }, [router]);
 
         return <>
-            {!user._id ? <LoadingComponent/> : <WrappedComponent {...props} />}
+            {!user?._id ? <LoadingComponent/> : <WrappedComponent {...props} />}
         </>
     };
 };

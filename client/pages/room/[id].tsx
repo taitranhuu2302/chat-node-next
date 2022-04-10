@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {wrapper} from "../../app/store";
 import {GetServerSideProps} from "next";
 import MainLayout from "../../layouts/MainLayout";
@@ -15,8 +15,12 @@ export interface IRoomChat {
 }
 
 const RoomChat: React.FC<IRoomChat> = ({id}) => {
-    const {} = useGetMessageByRoomQuery(id);
+    const {refetch} = useGetMessageByRoomQuery(id);
     const {data, isLoading} = useGetRoomQuery(id);
+
+    useEffect(() => {
+        refetch();
+    }, [id, refetch])
 
     return (
         <>

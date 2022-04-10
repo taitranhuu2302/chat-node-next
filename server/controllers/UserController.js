@@ -2,6 +2,7 @@ const ResponseObject = require('../models/ResponseObject');
 const User = require('../models/User')
 const Room = require('../models/Room')
 const ROOM_TYPE = require('../constants/RoomType')
+const Message = require('../models/Message')
 
 class UserController {
 
@@ -79,7 +80,7 @@ class UserController {
             userTo.friend_pending.push(idUserCurrent);
             userTo.save();
 
-            req.io.in(userTo._id.toString()).emit('friend_pending', userCurrent);
+            await req.io.in(userTo._id.toString()).emit('friend_pending', userCurrent);
 
             return res.status(200).json(ResponseObject(200, "Request Friend Success"))
         } catch (e) {
@@ -126,16 +127,19 @@ class UserController {
                 _id: idUserCurrent,
                 friend_pending: idUserAccept
             })
+
             const userAccept = await User.findOne({ _id: idUserAccept })
 
             if (!userCurrent || !userAccept) {
                 return res.status(404).json(ResponseObject(404, "User Not Found"))
             }
 
-            const room = new Room();
+            let room = new Room();
             room.members.push(idUserCurrent, idUserAccept);
             room.room_type = ROOM_TYPE.PRIVATE_ROOM;
             room.save();
+
+            room = await Room.populate(room, { path: "members", select: "_id email full_name avatar" })
 
             userCurrent.friend_pending = userCurrent.friend_pending.filter(userId => userId.toString() !== idUserAccept)
             userCurrent.friends.push(idUserAccept)
@@ -145,6 +149,18 @@ class UserController {
             userAccept.friends.push(idUserCurrent)
             userAccept.rooms.push(room)
             userAccept.save();
+
+            // socket emit
+            await req.io.in(userAccept._id.toString()).emit('friend_accept', {
+                user: userCurrent,
+                room,
+                message: `${userCurrent.full_name} has accepted the friend request`
+            });
+
+            await req.io.in(userCurrent._id.toString()).emit('friend_accept', {
+                user: userAccept,
+                room,
+            });
 
             return res.status(200).json(ResponseObject(200, "Accept User Success"))
 
@@ -199,16 +215,21 @@ class UserController {
                 friends: idUserCancel
             })
             const userCancel = await User.findOne({ _id: idUserCancel })
+            const roomPrivate = await Room.findOneAndDelete({ members: { $in: [idUserCurrent, idUserCancel] }, room_type: ROOM_TYPE.PRIVATE_ROOM })
 
             if (!userCurrent || !userCancel) {
                 return res.status(404).json(ResponseObject(404, "User Not Found"))
             }
 
             userCurrent.friends = userCurrent.friends.filter(userId => userId.toString() !== idUserCancel)
+            userCurrent.rooms = userCurrent.rooms.filter(roomId => roomId.toString() !== roomPrivate._id.toString())
             userCurrent.save();
 
             userCancel.friends = userCancel.friends.filter(userId => userId.toString() !== idUserCurrent)
+            userCancel.rooms = userCancel.rooms.filter(roomId => roomId.toString() !== roomPrivate._id.toString())
             userCancel.save();
+
+            await Message.deleteMany({ room: roomPrivate._id })
 
             return res.status(200).json(ResponseObject(200, "Cancel Friend Success"))
 

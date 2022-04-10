@@ -26,7 +26,7 @@ class RoomController {
     async findById(req, res) {
         try {
             const roomId = req.params.roomId;
-            await Room.findById(roomId).populate('members', '_id email full_name').then(data => {
+            await Room.findById(roomId).populate('members', '_id email full_name avatar').then(data => {
                 return res.status(200).json(ResponseObject(200, 'Find Room Success', data));
             });
         } catch (e) {

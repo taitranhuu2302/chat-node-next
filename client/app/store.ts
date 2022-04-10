@@ -8,7 +8,9 @@ import {messageService} from "./services/Message.service";
 import messageSlice from "./features/Message.slice";
 import {roomService} from "./services/Room.service";
 
-const middleware = [...getDefaultMiddleware(), userService.middleware, messageService.middleware, roomService.middleware];
+const middleware = [...getDefaultMiddleware(),
+    userService.middleware, messageService.middleware,
+    roomService.middleware];
 
 export const store = configureStore({
     reducer: {

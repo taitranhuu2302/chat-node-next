@@ -57,7 +57,7 @@ const SidebarChatComponent = () => {
                         if (room.room_type === PRIVATE_ROOM) {
                             const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
                             return (
-                                <ItemChatComponent key={index} avatar={room.avatar} name={userDiff.full_name} id={room._id}/>
+                                <ItemChatComponent key={index} avatar={userDiff.avatar} name={userDiff.full_name} id={room._id}/>
                             )
                         } else {
                             return (
