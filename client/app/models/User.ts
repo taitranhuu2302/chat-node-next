@@ -1,7 +1,7 @@
 import { IRoom } from "./Room";
 
 export interface IUser {
-    id: string;
+    _id: string;
     email: string;
     full_name: string;
     avatar: string;

@@ -29,7 +29,7 @@ const NavigationComponent: React.FC<Props> = () => {
     };
 
     const onLogout = async () => {
-        cookies.remove('auth', {path: '/', expires: new Date(new Date().getTime())});
+        cookies.remove('auth', {path: '/', expires: new Date(new Date().getTime() - 1)});
         await Router.replace('/login');
     }
 

@@ -64,6 +64,8 @@ class UserController {
                 email: emailUserTo
             });
 
+            const userCurrent = await User.findById({ _id: idUserCurrent }, { _id: 1, email: 1, full_name: 1, avatar: 1 });
+
             const checkFriend = userTo.friends.findIndex(userId => userId.toString() === idUserCurrent);
             if (checkFriend !== -1) {
                 return res.status(400).json(ResponseObject(400, "User is already your friend"))
@@ -74,10 +76,10 @@ class UserController {
                 return res.status(400).json(ResponseObject(400, "You have already sent a friend request to this user"))
             }
 
-            console.log(checkFriendPending);
-
             userTo.friend_pending.push(idUserCurrent);
             userTo.save();
+
+            req.io.in(userTo._id.toString()).emit('friend_pending', userCurrent);
 
             return res.status(200).json(ResponseObject(200, "Request Friend Success"))
         } catch (e) {
@@ -143,8 +145,6 @@ class UserController {
             userAccept.friends.push(idUserCurrent)
             userAccept.rooms.push(room)
             userAccept.save();
-
-
 
             return res.status(200).json(ResponseObject(200, "Accept User Success"))
 

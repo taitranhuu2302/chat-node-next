@@ -4,13 +4,15 @@ import {checkUserAuthentication} from "../api/CheckUserAuthentication.api";
 import Cookies from "universal-cookie";
 import LoadingComponent from "../components/Loading.component";
 import {useGetUserQuery} from "../app/services/User.service";
+import {useAppSelector} from "../app/hook";
+import {RootState} from "../app/store";
 
 const withAuth = (WrappedComponent: any) => {
     // eslint-disable-next-line react/display-name
     return (props: any) => {
         const router = useRouter();
         // we call the api that verifies the token.
-        const {isLoading, data, isSuccess} = useGetUserQuery();
+        const {user} = useAppSelector((state: RootState) => state.userSlice);
         const cookie = new Cookies();
 
         useEffect(() => {
@@ -20,15 +22,15 @@ const withAuth = (WrappedComponent: any) => {
                 if (!accessToken) {
                     await router.replace("/login");
                 } else {
-                    // if token was verified we set the state.
-                    // if (!data) await router.replace("/login");
+                    setTimeout(() => {
+                        if (!user._id) router.replace('/login');
+                    }, 3000)
                 }
             })()
         }, [router]);
 
-
         return <>
-            {isLoading ? <LoadingComponent/> : <WrappedComponent {...props} />}
+            {!user._id ? <LoadingComponent/> : <WrappedComponent {...props} />}
         </>
     };
 };

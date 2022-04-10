@@ -5,6 +5,10 @@ import Cookies from "universal-cookie";
 
 const BASE_URL = process.env.URL_API;
 
+interface IAddFriend {
+    email: string;
+}
+
 export const userService = createApi({
     reducerPath: "userService",
     baseQuery: fetchBaseQuery({
@@ -21,8 +25,16 @@ export const userService = createApi({
         getUser: build.query<IResponseObject<IUser>, void>({
             query: () => `/get-user`,
             providesTags: ['IUser'],
+        }),
+        addFriend: build.mutation<any, IAddFriend>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/add-friend`,
+                body: data
+            }),
+            invalidatesTags: ['IUser'],
         })
     }),
 });
 
-export const {useGetUserQuery} = userService;
+export const {useGetUserQuery, useAddFriendMutation} = userService;

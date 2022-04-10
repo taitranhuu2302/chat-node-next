@@ -6,7 +6,7 @@ import {
     ListItemText,
     Menu,
     Divider,
-    MenuItem,
+    MenuItem, Typography, Tooltip,
 } from "@mui/material";
 import {styled} from "@mui/styles";
 import React, {useState} from "react";
@@ -40,9 +40,19 @@ const ItemFriendComponent: React.FC<ItemFriend> = ({user}) => {
             }
         >
             <ListItemAvatar>
-                <Avatar src={user.avatar || ""} alt="Avatar"/>
+                <Avatar src={user.avatar} alt="Avatar"/>
             </ListItemAvatar>
-            <ListItemText primary={user.email || ""}/>
+            <Tooltip title={user.full_name}>
+                <ListItemText primary={
+                    <Typography
+                        textOverflow={'ellipsis'}
+                        overflow={'hidden'}
+                        maxWidth={'100%'}
+                        component={'p'}>
+                        {user.full_name}
+                    </Typography>
+                }/>
+            </Tooltip>
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -57,7 +67,8 @@ const ItemFriendComponent: React.FC<ItemFriend> = ({user}) => {
                 <MenuItem onClick={handleClose}>Block</MenuItem>
             </Menu>
         </ListItemCustom>
-    );
+    )
+        ;
 };
 
 export default ItemFriendComponent;

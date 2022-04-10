@@ -1,7 +1,8 @@
 import {IRoom} from "./Room";
 import {IUser} from "./User";
 
-interface IMessage {
+export interface IMessage {
+    _id: string;
     room: IRoom,
     owner: IUser,
     text: string,

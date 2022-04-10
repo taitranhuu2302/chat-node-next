@@ -7,7 +7,7 @@ import {useAppSelector} from "../app/hook";
 import NavigationComponent from "../components/Navigation.component";
 import SidebarChatComponent from "../components/SidebarChat/SidebarChat.component";
 import SidebarFriendComponent from "../components/SidebarFriend/SidebarFriend.component";
-import SidebarFriendRequestComponent from "../components/SidebarFriendRequest.module";
+import SidebarFriendRequestComponent from "../components/SidebarFriendRequest.component";
 
 interface IProps {
 }

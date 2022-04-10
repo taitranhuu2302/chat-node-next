@@ -4,14 +4,20 @@ import {setupListeners} from "@reduxjs/toolkit/query";
 import tabSlice from "./features/Tab.slice";
 import {userService} from "./services/User.service";
 import userSlice from "./features/User.slice";
+import {messageService} from "./services/Message.service";
+import messageSlice from "./features/Message.slice";
+import {roomService} from "./services/Room.service";
 
-const middleware = [...getDefaultMiddleware(), userService.middleware];
+const middleware = [...getDefaultMiddleware(), userService.middleware, messageService.middleware, roomService.middleware];
 
 export const store = configureStore({
     reducer: {
         tabSlice,
         userSlice,
-        [userService.reducerPath]: userService.reducer
+        messageSlice,
+        [userService.reducerPath]: userService.reducer,
+        [roomService.reducerPath]: roomService.reducer,
+        [messageService.reducerPath]: messageService.reducer
     },
     middleware,
 });

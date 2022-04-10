@@ -34,7 +34,7 @@ const ItemChat: React.FC<ItemChat> = ({name, avatar, id}) => {
 
     return (
         <ListItem
-            sx={{padding: 0}}
+            sx={{padding: "20px 0"}}
             secondaryAction={
                 <IconButton onClick={handleClick}>
                     <MoreHorizOutlinedIcon/>
@@ -45,7 +45,7 @@ const ItemChat: React.FC<ItemChat> = ({name, avatar, id}) => {
                 <ListItemAvatar>
                     <Avatar src={avatar ? avatar : ""} alt="Avatar"/>
                 </ListItemAvatar>
-                <ListItemText primary={name} secondary="Xin chào Hữu Tài"/>
+                <ListItemText primary={name}/>
             </ListItemButton>
             <Menu
                 id="basic-menu"

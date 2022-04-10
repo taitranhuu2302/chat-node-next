@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
     if (token) {
         const response = await checkUserAuthentication(token)
-        if (response.status === 200) {
+        if (response?.status === 200) {
             return NextResponse.redirect(URL)
         }
     }

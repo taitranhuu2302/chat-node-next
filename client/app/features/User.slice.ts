@@ -10,7 +10,7 @@ interface IState {
 
 const initialState: IState = {
     user: {
-        id: "",
+        _id: "",
         email: "",
         full_name: "",
         address: "",
@@ -25,7 +25,14 @@ const initialState: IState = {
 const userSlice = createSlice({
     name: "userSlice",
     initialState,
-    reducers: {},
+    reducers: {
+        addFriendRequest: (state, action: PayloadAction<IUser>) => {
+            state.user.friend_pending.push(action.payload);
+        },
+        removeFriendRequest: (state, action: PayloadAction<IUser>) => {
+            state.user.friend_pending = state.user.friend_pending.filter(friend => friend._id !== action.payload._id);
+        },
+    },
     extraReducers: (builder) => {
         builder.addMatcher(userService.endpoints.getUser.matchFulfilled,
             (state, {payload}: PayloadAction<IResponseObject<IUser>>) => {
@@ -33,5 +40,7 @@ const userSlice = createSlice({
             });
     }
 });
+
+export const {addFriendRequest, removeFriendRequest} = userSlice.actions;
 
 export default userSlice.reducer;

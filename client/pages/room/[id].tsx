@@ -5,12 +5,19 @@ import MainLayout from "../../layouts/MainLayout";
 import Head from "next/head";
 import ChatComponent from "../../components/Chat.component";
 import withAuth from "../../HOC/withAuth";
+import {useGetMessageByRoomQuery} from "../../app/services/Message.service";
+import {IRoom} from "../../app/models/Room";
+import LoadingComponent from "../../components/Loading.component";
+import {useGetRoomQuery} from "../../app/services/Room.service";
 
 export interface IRoomChat {
-    id: string;
+    id: string
 }
 
 const RoomChat: React.FC<IRoomChat> = ({id}) => {
+    const {} = useGetMessageByRoomQuery(id);
+    const {data, isLoading} = useGetRoomQuery(id);
+
     return (
         <>
             <Head>
@@ -18,7 +25,7 @@ const RoomChat: React.FC<IRoomChat> = ({id}) => {
                 <title>Chat Room</title>
             </Head>
             <MainLayout>
-                <ChatComponent room={{name: "Ralph"}}/>
+                {isLoading ? <LoadingComponent/> : (data && <ChatComponent room={data.body}/>)}
             </MainLayout>
         </>
     );
@@ -26,9 +33,10 @@ const RoomChat: React.FC<IRoomChat> = ({id}) => {
 
 export const getServerSideProps: GetServerSideProps = async ({query}) => {
     const id = query.id;
+
     return {
         props: {
-            id,
+            id
         },
     };
 };

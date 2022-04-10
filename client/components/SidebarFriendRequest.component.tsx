@@ -8,13 +8,22 @@ import {
     List,
     ListItem,
     ListItemAvatar,
-    ListItemText, Menu, MenuItem,
+    ListItemText, Menu, MenuItem, Tooltip,
     Typography
 } from "@mui/material";
 import styles from "../styles/SidebarFriendRequest.module.scss";
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
+import {IUser} from "../app/models/User";
+import {useAppSelector} from "../app/hook";
+import {RootState} from "../app/store";
+
+
+interface IItem {
+    user: IUser
+}
 
 const SidebarFriendRequestComponent = () => {
+    const {user} = useAppSelector((state: RootState) => state.userSlice)
 
     return <Card variant="outlined" className={styles.root}>
         <CardContent className={styles.cardContent}>
@@ -25,13 +34,18 @@ const SidebarFriendRequestComponent = () => {
                 <InputBase className={styles.inputSearch} placeholder="Search"/>
             </Box>
             <List className={styles.list}>
-
+                {
+                    user.friend_pending.map((friend, index) => {
+                        return <Item key={index} user={friend}/>
+                    })
+                }
             </List>
         </CardContent>
     </Card>
 }
 
-const Item = ({user}: any) => {
+
+const Item: React.FC<IItem> = ({user}) => {
     const [anchorEl, setAnchorEl] = useState<any>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent) => {
@@ -53,9 +67,17 @@ const Item = ({user}: any) => {
             <ListItemAvatar>
                 <Avatar src={user.avatar || ""}/>
             </ListItemAvatar>
-            <ListItemText
-                primary={user.email}
-            />
+            <Tooltip title={user.email}>
+                <ListItemText primary={
+                    <Typography
+                        textOverflow={'ellipsis'}
+                        overflow={'hidden'}
+                        maxWidth={'80%'}
+                        component={'p'}>
+                        {user.email}
+                    </Typography>
+                }/>
+            </Tooltip>
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
