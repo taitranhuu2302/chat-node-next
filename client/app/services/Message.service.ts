@@ -5,6 +5,12 @@ import Cookies from "universal-cookie";
 
 const BASE_URL = process.env.URL_API;
 
+type SendMessage = {
+    text: string;
+    images?: string[];
+    roomId: string;
+}
+
 export const messageService = createApi({
     reducerPath: "messageService",
     baseQuery: fetchBaseQuery({
@@ -21,8 +27,15 @@ export const messageService = createApi({
         getMessageByRoom: build.query<IResponseListObject<IMessage>, string>({
             query: (roomId) => `/${roomId}`,
             providesTags: ['IMessage'],
+        }),
+        sendMessage: build.mutation<void, SendMessage>({
+            query: ({text, roomId}) => ({
+                method: 'POST',
+                url: `/${roomId}`,
+                body: {text}
+            }),
         })
     }),
 });
 
-export const {useGetMessageByRoomQuery} = messageService;
+export const {useGetMessageByRoomQuery, useSendMessageMutation} = messageService;

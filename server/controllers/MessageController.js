@@ -24,11 +24,16 @@ class MessageController {
         try {
             const roomId = req.params.roomId;
             const body = req.body;
-            const message = new Message(body);
+            let message = new Message(body);
 
             message.owner = req.userId;
             message.room = roomId;
             message.save();
+
+            message = await Message.populate(message, { path: "owner", select: "_id email full_name avatar" })
+
+            req.io.in(roomId).emit('chat_message', message);
+
             return res.status(200).json(ResponseObject(200, 'Send Message Success', message));
         } catch (e) {
             return res.status(500).json(ResponseObject(500, e.message))

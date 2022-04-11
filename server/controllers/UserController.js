@@ -42,7 +42,7 @@ class UserController {
             if (isBase64(base64)) {
 
                 const newNameAvatar = `avatar-${idUser}.${type}`;
-                nameAvatar = `http://localhost:${process.env.PORT}/images/` + newNameAvatar;
+                nameAvatar = `http://localhost:${process.env.PORT}/images/${newNameAvatar}`;
                 // path.join(__dirname, "public")
                 fs.writeFile(`public/images/${newNameAvatar}`, base64, { encoding: 'base64' }, function (err) {
                     if (err) {
@@ -60,8 +60,7 @@ class UserController {
                 number_phone: body.number_phone
             }
 
-
-            const user = await User.findByIdAndUpdate(idUser, body, { new: true });
+            const user = await User.findByIdAndUpdate(idUser, updateUser, { new: true });
             return res.status(200).json(ResponseObject(200, 'Update User Success', user));
         } catch (e) {
             return res.status(500).json(ResponseObject(500, e.message))

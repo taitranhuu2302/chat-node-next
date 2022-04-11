@@ -1,21 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {
-    Avatar,
-    Box, Button, ButtonBase,
-    FormControl,
-    FormControlLabel,
-    IconButton,
-    Input,
-    InputBase,
-    InputLabel,
-    Modal,
-    Typography
-} from "@mui/material";
+import React, {useEffect, useRef, useState} from 'react';
+import {Avatar, Box, ButtonBase, IconButton, Modal, Typography} from "@mui/material";
 import styles from '../styles/Profile.module.scss';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import CloseIcon from '@mui/icons-material/Close';
-import {styled} from "@mui/styles";
-import {ButtonGreen} from "../commons/ButtonCustom";
 import {InputCustomBase} from '../commons/InputCustom';
 import {useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
@@ -71,7 +58,6 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
         fr.onload = (event: any) => {
             setAvatar(event.target.result)
         }
-        // console.log(avatarRef.current.value)
     }
 
     const onUpdateUser: SubmitHandler<Inputs> = async (data) => {

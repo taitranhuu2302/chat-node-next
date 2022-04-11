@@ -14,7 +14,11 @@ const initialState: IState = {
 const messageSlice = createSlice({
     name: "messageSlice",
     initialState,
-    reducers: {},
+    reducers: {
+        sendMessage: (state, {payload}: PayloadAction<IMessage>) => {
+            state.messages = [payload,...state.messages];
+        },
+    },
     extraReducers: (builder => {
         builder.addMatcher(messageService.endpoints.getMessageByRoom.matchFulfilled,
             (state, {payload}: PayloadAction<IResponseListObject<IMessage>>) => {
@@ -22,5 +26,7 @@ const messageSlice = createSlice({
             });
     })
 });
+
+export const {sendMessage} = messageSlice.actions;
 
 export default messageSlice.reducer;

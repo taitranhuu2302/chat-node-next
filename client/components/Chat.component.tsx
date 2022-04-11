@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {
     Avatar,
     Box,
@@ -16,19 +16,47 @@ import AttachmentIcon from "@mui/icons-material/Attachment";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import {IRoom, PRIVATE_ROOM} from "../app/models/Room";
-import {useAppSelector} from "../app/hook";
+import {useAppDispatch, useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
 import {IUser} from "../app/models/User";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {useSendMessageMutation} from "../app/services/Message.service";
+import {SocketContext} from "../context/SocketProvider";
+import {IMessage} from "../app/models/Message";
+import {sendMessage} from "../app/features/Message.slice";
 
 export interface IChat {
     room: IRoom;
 }
 
+type Inputs = {
+    text: string;
+}
+
+
 const ChatComponent: React.FC<IChat> = ({room}) => {
+    const socket = useContext(SocketContext);
+    const [sendMessageApi] = useSendMessageMutation();
     const {user} = useAppSelector((state: RootState) => state.userSlice)
     const {messages} = useAppSelector((state: RootState) => state.messageSlice);
     const [roomName, setRoomName] = useState("");
     const [roomAvatar, setRoomAvatar] = useState("");
+    const {register, handleSubmit, setValue} = useForm<Inputs>();
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+
+        socket.on('chat_message', (message: IMessage) => {
+            if (message.room === room._id) {
+                dispatch(sendMessage(message));
+            }
+        });
+
+        return () => {
+            socket.off('chat_message');
+        }
+
+    }, [socket, messages])
 
     useEffect(() => {
         if (room.room_type === PRIVATE_ROOM) {
@@ -41,6 +69,43 @@ const ChatComponent: React.FC<IChat> = ({room}) => {
         }
     }, [room])
 
+    const handleSendMessage: SubmitHandler<Inputs> = async (data) => {
+
+        const request = {
+            roomId: room._id,
+            text: data.text,
+        }
+
+        await sendMessageApi(request).then((res: any) => {
+            if (!res.error) {
+                setValue("text", "");
+            }
+        });
+    }
+
+    const renderChat = useCallback(() => {
+        return messages.map((message, index) => {
+            if (message.owner._id === user._id) {
+                return <Box key={index} className={styles.wrapperContentRight}>
+                    <Typography className={styles.username}>
+                        {message.owner.full_name}
+                    </Typography>
+                    <Typography className={styles.textRight}>
+                        {message.text}
+                    </Typography>
+                </Box>
+            } else {
+                return <Box key={index} className={styles.wrapperContentLeft}>
+                    <Typography variant="caption" className={styles.username}>
+                        {message.owner.full_name}
+                    </Typography>
+                    <Typography className={styles.textLeft}>
+                        {message.text}
+                    </Typography>
+                </Box>
+            }
+        })
+    }, [messages, user._id])
 
     return (
         <Box className={styles.root}>
@@ -65,33 +130,35 @@ const ChatComponent: React.FC<IChat> = ({room}) => {
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
-                {messages.map((message, index) => {
-                    if (message.owner._id === user._id) {
-                        return <Box key={index} className={styles.wrapperContentRight}>
-                            <Typography className={styles.username}>
-                                {message.owner.full_name}
-                            </Typography>
-                            <Typography className={styles.textRight}>
-                                {message.text}
-                            </Typography>
-                        </Box>
-                    } else {
-                        return <Box key={index} className={styles.wrapperContentLeft}>
-                            <Typography variant="caption" className={styles.username}>
-                                {message.owner.full_name}
-                            </Typography>
-                            <Typography className={styles.textLeft}>
-                                {message.text}
-                            </Typography>
-                        </Box>
-                    }
-                })}
+                {renderChat()}
+                {/*{messages.map((message, index) => {*/}
+                {/*    if (message.owner._id === user._id) {*/}
+                {/*        return <Box key={index} className={styles.wrapperContentRight}>*/}
+                {/*            <Typography className={styles.username}>*/}
+                {/*                {message.owner.full_name}*/}
+                {/*            </Typography>*/}
+                {/*            <Typography className={styles.textRight}>*/}
+                {/*                {message.text}*/}
+                {/*            </Typography>*/}
+                {/*        </Box>*/}
+                {/*    } else {*/}
+                {/*        return <Box key={index} className={styles.wrapperContentLeft}>*/}
+                {/*            <Typography variant="caption" className={styles.username}>*/}
+                {/*                {message.owner.full_name}*/}
+                {/*            </Typography>*/}
+                {/*            <Typography className={styles.textLeft}>*/}
+                {/*                {message.text}*/}
+                {/*            </Typography>*/}
+                {/*        </Box>*/}
+                {/*    }*/}
+                {/*})}*/}
             </Box>
             <Box className={styles.chatFooter}>
-                <form>
+                <form onSubmit={handleSubmit(handleSendMessage)}>
                     <TextField
                         variant={`outlined`}
                         className={styles.chatInput}
+                        {...register('text', {required: true})}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">

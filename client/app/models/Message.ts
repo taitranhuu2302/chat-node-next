@@ -3,7 +3,7 @@ import {IUser} from "./User";
 
 export interface IMessage {
     _id: string;
-    room: IRoom,
+    room: IRoom | string,
     owner: IUser,
     text: string,
     image: string[],

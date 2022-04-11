@@ -15,7 +15,7 @@ export interface IRoomChat {
 }
 
 const RoomChat: React.FC<IRoomChat> = ({id}) => {
-    const {refetch} = useGetMessageByRoomQuery(id);
+    const {refetch, data: responseMessage} = useGetMessageByRoomQuery(id);
     const {data, isLoading} = useGetRoomQuery(id);
 
     useEffect(() => {
