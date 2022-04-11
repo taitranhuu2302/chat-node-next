@@ -6,6 +6,8 @@ import {useAppDispatch} from "../app/hook";
 import {addFriend, addFriendRequest, addRoom} from "../app/features/User.slice";
 import {toast} from "react-toastify";
 import {IRoom} from "../app/models/Room";
+import {IMessage} from "../app/models/Message";
+import {sendMessage} from "../app/features/Message.slice";
 
 const URL = process.env.URL_SERVER || 'http://localhost:4000';
 
@@ -24,8 +26,9 @@ type FriendAccept = {
 }
 
 const SocketProvider: React.FC<IProps> = ({children}) => {
-    const {data} = useGetUserQuery();
+    const {data, refetch} = useGetUserQuery();
     const dispatch = useAppDispatch();
+
 
     useEffect(() => {
         if (data) {
@@ -38,7 +41,7 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
 
         socket.on('friend_pending', (data: IUser) => {
             dispatch(addFriendRequest(data))
-            toast.info(`${data.email} sent you a friend request`, {
+            toast.info(`${data.email} đã gửi lời mời kết bạn`, {
                 position: "bottom-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -49,8 +52,10 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
         socket.on('friend_accept', (data: FriendAccept) => {
             dispatch(addRoom(data.room));
             dispatch(addFriend(data.user));
+            socket.emit('user_connected', data.user);
+            refetch();
             if (data.message) {
-                toast.success(data.message, {
+                toast.success(`${data.user.full_name} đã đồng ý lời mời kết bạn`, {
                     position: "bottom-right",
                     autoClose: 5000,
                     hideProgressBar: false,

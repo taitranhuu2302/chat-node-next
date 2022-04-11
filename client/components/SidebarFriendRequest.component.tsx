@@ -32,7 +32,7 @@ const SidebarFriendRequestComponent = () => {
     return <Card variant="outlined" className={styles.root}>
         <CardContent className={styles.cardContent}>
             <Box className={styles.cardHeader}>
-                <Typography className={styles.title}>Friend Request</Typography>
+                <Typography className={styles.title}>Lời mời kết bạn</Typography>
             </Box>
             <Box className={styles.cardSearch}>
                 <InputBase className={styles.inputSearch} placeholder="Search"/>
@@ -74,7 +74,7 @@ const Item: React.FC<IItem> = ({user}) => {
 
         await removeFriendRequestApi(data).then((res: any) => {
             if (res?.error) {
-                toast.error('Remove friend request failed', {
+                toast.error('Đã xảy ra lỗi', {
                     position: "bottom-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -83,7 +83,7 @@ const Item: React.FC<IItem> = ({user}) => {
                 })
             } else {
                 dispatch(removeFriendRequest(data))
-                toast.success('Remove friend request success', {
+                toast.success('Xoá lời mời kết bạn thành công', {
                     position: "bottom-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -101,7 +101,7 @@ const Item: React.FC<IItem> = ({user}) => {
         }
         await acceptFriendRequestApi(data).then((res: any) => {
             if (res?.error) {
-                toast.error('Accept friend request failed', {
+                toast.error('Đã xảy ra lỗi', {
                     position: "bottom-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -109,7 +109,7 @@ const Item: React.FC<IItem> = ({user}) => {
                     progress: undefined,
                 })
             } else {
-                toast.success('Accept friend request success', {
+                toast.success('Đồng ý lời mời kết bạn thành công', {
                     position: "bottom-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -168,19 +168,19 @@ const Item: React.FC<IItem> = ({user}) => {
                         "aria-labelledby": "basic-button",
                     }}
                 >
-                    <MenuItem onClick={() => setOpenConfirmAccept(true)}>Accept</MenuItem>
-                    <MenuItem onClick={() => setOpenConfirmCancel(true)}>Delete</MenuItem>
+                    <MenuItem onClick={() => setOpenConfirmAccept(true)}>Chấp nhận</MenuItem>
+                    <MenuItem onClick={() => setOpenConfirmCancel(true)}>Xoá</MenuItem>
                 </Menu>
             </ListItem>
             <DialogConfirmComponent
                 open={openConfirmCancel} setOpen={setOpenConfirmCancel} handleConfirm={handleConfirmCancel}
-                title={'Delete friend request'}
-                message={'Are you sure you want to delete this friend request?'}
+                title={'Xoá lời mời kết bạn'}
+                message={'Bạn có chắc chắn muốn xoá lời mời kết bạn này?'}
             />
             <DialogConfirmComponent
                 open={openConfirmAccept} setOpen={setOpenConfirmAccept} handleConfirm={handleConfirmAccept}
-                title={'Accept friend request'}
-                message={'Are you sure you want to accept this friend request?'}
+                title={'Chấp nhận lời mời kết bạn'}
+                message={'Bạn có chắc chắn muốn chấp nhận lời mời kết bạn này?'}
             />
         </>
     )

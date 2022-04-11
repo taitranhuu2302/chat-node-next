@@ -27,8 +27,8 @@ type Inputs = {
 }
 
 const schema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Email is required'),
-    fullName: yup.string().required('Full name is required'),
+    email: yup.string().email('Email chưa đúng định dạng').required('Trường này bắt buộc'),
+    fullName: yup.string().required('Trường này bắt buộc'),
     phone: yup.string(),
     address: yup.string(),
 })
@@ -99,8 +99,7 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
                 <Box className={styles.header}>
                     <Box display={'flex'} alignItems={'center'} gap={1}>
                         <ModeEditOutlineOutlinedIcon/>
-                        <Typography color={'#212529'} fontSize={20} fontWeight={'bold'} variant="h5">Profile
-                            Edit</Typography>
+                        <Typography color={'#212529'} fontSize={20} fontWeight={'bold'} variant="h5">Chỉnh sửa hồ sơ</Typography>
                     </Box>
                     <IconButton onClick={() => setOpen(false)}>
                         <CloseIcon/>
@@ -114,30 +113,30 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
                         {errors.email && <TextError>{errors.email.message}</TextError>}
                     </Box>
                     <Box className={styles.inputGroup}>
-                        <label>Full Name</label>
+                        <label>Họ và tên</label>
                         <InputCustomBase {...register('fullName')} placeholder={"Tran Huu Tai"}/>
                     </Box>
                     {errors.fullName && <TextError>{errors.fullName.message}</TextError>}
                     <Box className={styles.inputGroup}>
-                        <label>Avatar</label>
+                        <label>Ảnh đại diện</label>
                         <Box display={'flex'} alignItems={'center'} gap={2}>
                             <Avatar src={avatar}/>
                             <InputCustomBase onChange={changeAvatar} ref={avatarRef} type={'file'}/>
                         </Box>
                     </Box>
                     <Box className={styles.inputGroup}>
-                        <label>Address</label>
+                        <label>Địa chỉ</label>
                         <InputCustomBase {...register('address')} placeholder={"Thanh Pho Hue"}/>
                     </Box>
                     {errors.address && <TextError>{errors.address.message}</TextError>}
 
                     <Box className={styles.inputGroup}>
-                        <label>Phone</label>
+                        <label>Số điện thoại</label>
                         <InputCustomBase {...register('phone')} placeholder={'(555) 555 55 55'}/>
                     </Box>
                     {errors.phone && <TextError>{errors.phone.message}</TextError>}
                     <Box className={styles.footer}>
-                        <ButtonBase type={'submit'} className={styles.button}>Save</ButtonBase>
+                        <ButtonBase type={'submit'} className={styles.button}>Lưu</ButtonBase>
                     </Box>
                 </form>
             </Box>

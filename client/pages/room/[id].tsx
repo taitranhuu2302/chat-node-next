@@ -9,6 +9,7 @@ import {useGetMessageByRoomQuery} from "../../app/services/Message.service";
 import {IRoom} from "../../app/models/Room";
 import LoadingComponent from "../../components/Loading.component";
 import {useGetRoomQuery} from "../../app/services/Room.service";
+import Router from "next/router";
 
 export interface IRoomChat {
     id: string
@@ -21,6 +22,12 @@ const RoomChat: React.FC<IRoomChat> = ({id}) => {
     useEffect(() => {
         refetch();
     }, [id, refetch])
+
+    useEffect(() => {
+        if (!data) {
+            Router.replace('/')
+        }
+    }, [data])
 
     return (
         <>
