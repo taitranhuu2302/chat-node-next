@@ -38,6 +38,9 @@ const userSlice = createSlice({
         addFriend: (state, action: PayloadAction<IUser>) => {
             state.user.friends.push(action.payload);
         },
+        cancelFriend: (state, {payload}: PayloadAction<string>) => {
+            state.user.friends = state.user.friends.filter(friend => friend._id !== payload);
+        }
     },
     extraReducers: (builder) => {
         builder.addMatcher(userService.endpoints.getUser.matchFulfilled,
@@ -47,6 +50,6 @@ const userSlice = createSlice({
     }
 });
 
-export const {addFriendRequest, removeFriendRequest, addRoom, addFriend} = userSlice.actions;
+export const {addFriendRequest, removeFriendRequest, addRoom, addFriend, cancelFriend} = userSlice.actions;
 
 export default userSlice.reducer;

@@ -45,27 +45,27 @@ const NavigationComponent: React.FC<Props> = () => {
                     <Tooltip title="Chat" placement="right">
                         <Tab className={styles.tabItem} icon={<MessageOutlinedIcon/>}/>
                     </Tooltip>
-                    <Tooltip title="Friends" placement="right">
+                    <Tooltip title="Bạn bè" placement="right">
                         <Tab className={styles.tabItem} icon={<PersonOutlinedIcon/>}/>
                     </Tooltip>
-                    <Tooltip title="Favorite" placement="right">
+                    <Tooltip title="Lời mời kết bạn" placement="right">
                         <Tab className={styles.tabItem} icon={<StarBorderOutlinedIcon/>}/>
                     </Tooltip>
                 </Tabs>
             </Box>
 
             <List>
-                <Tooltip title="Edit Profile" placement="right">
+                <Tooltip title="Chỉnh sửa hồ sơ" placement="right">
                     <ListItemButton onClick={() => setOpenProfile(true)} className={styles.listItem}>
                         <ModeEditOutlineOutlinedIcon/>
                     </ListItemButton>
                 </Tooltip>
-                <Tooltip title="Settings" placement="right">
+                <Tooltip title="Cài đặt" placement="right">
                     <ListItemButton className={styles.listItem}>
                         <SettingsOutlinedIcon/>
                     </ListItemButton>
                 </Tooltip>
-                <Tooltip title="Logout" placement="right">
+                <Tooltip title="Đăng xuất" placement="right">
                     <ListItemButton onClick={onLogout} className={styles.listItem}>
                         <PowerSettingsNewOutlinedIcon/>
                     </ListItemButton>

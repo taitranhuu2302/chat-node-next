@@ -56,8 +56,7 @@ const ItemChat: React.FC<ItemChat> = ({name, avatar, id}) => {
                     "aria-labelledby": "basic-button",
                 }}
             >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>Delete</MenuItem>
+                <MenuItem onClick={handleClose}>Xoá tin nhắn</MenuItem>
             </Menu>
         </ListItem>
     );

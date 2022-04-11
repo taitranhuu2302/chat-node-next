@@ -115,6 +115,10 @@ class UserController {
                 email: emailUserTo
             });
 
+            if (userTo._id.toString() === idUserCurrent) {
+                return res.status(400).json(ResponseObject(400, "You can't add yourself as a friend"))
+            }
+
             const userCurrent = await User.findById({ _id: idUserCurrent }, { _id: 1, email: 1, full_name: 1, avatar: 1 });
 
             const checkFriend = userTo.friends.findIndex(userId => userId.toString() === idUserCurrent);
@@ -264,6 +268,7 @@ class UserController {
                 _id: idUserCurrent,
                 friends: idUserCancel
             })
+
             const userCancel = await User.findOne({ _id: idUserCancel })
             const roomPrivate = await Room.findOneAndDelete({ members: { $in: [idUserCurrent, idUserCancel] }, room_type: ROOM_TYPE.PRIVATE_ROOM })
 
@@ -273,11 +278,11 @@ class UserController {
 
             userCurrent.friends = userCurrent.friends.filter(userId => userId.toString() !== idUserCancel)
             userCurrent.rooms = userCurrent.rooms.filter(roomId => roomId.toString() !== roomPrivate._id.toString())
-            userCurrent.save();
+            await userCurrent.save();
 
             userCancel.friends = userCancel.friends.filter(userId => userId.toString() !== idUserCurrent)
             userCancel.rooms = userCancel.rooms.filter(roomId => roomId.toString() !== roomPrivate._id.toString())
-            userCancel.save();
+            await userCancel.save();
 
             await Message.deleteMany({ room: roomPrivate._id })
 
@@ -289,5 +294,4 @@ class UserController {
     }
 }
 
-module
-    .exports = new UserController();
+module.exports = new UserController();

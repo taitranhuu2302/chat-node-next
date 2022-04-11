@@ -43,7 +43,7 @@ const ModalAddFriendComponent: React.FC<IModalAddFriend> = ({open, setOpen}) => 
     useLayoutEffect(() => {
         if (error) {
             // @ts-ignore
-            toast.error(error?.data?.message, {
+            toast.error('Đã xảy ra lỗi', {
                 position: "bottom-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -55,7 +55,7 @@ const ModalAddFriendComponent: React.FC<IModalAddFriend> = ({open, setOpen}) => 
         }
 
         if (data) {
-            toast.success(data?.message, {
+            toast.success('Gửi lời mời kết bạn thành công', {
                 position: "bottom-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -85,14 +85,14 @@ const ModalAddFriendComponent: React.FC<IModalAddFriend> = ({open, setOpen}) => 
             <Box className={styles.header}>
                 <Box className={styles.title}>
                     <PersonOutlineIcon/>
-                    <Typography className={styles.text}>Add Friends</Typography>
+                    <Typography className={styles.text}>Thêm bạn bè</Typography>
                 </Box>
                 <IconButton className={styles.buttonClose} onClick={() => setOpen(false)}>
                     <CloseIcon/>
                 </IconButton>
             </Box>
             <Box className={styles.content}>
-                <Alert severity="info" className={styles.alert}>Send invitations to friends.</Alert>
+                <Alert severity="info" className={styles.alert}>Gửi lời mời kết bạn</Alert>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormControl fullWidth={true}>
                         <InputLabel shrink className={styles.label}>
@@ -104,8 +104,7 @@ const ModalAddFriendComponent: React.FC<IModalAddFriend> = ({open, setOpen}) => 
                     {errors.email && <Alert severity="error">{errors.email.message}</Alert>}
                     {notify && <Alert severity={notify.severity}>{notify.message}</Alert>}
                     <Box sx={{display: 'flex', justifyContent: 'center', marginTop: "20px"}}>
-                        <Button type={'submit'} variant={"outlined"} className={styles.buttonMakeFriend}>Send
-                            Invitation</Button>
+                        <Button type={'submit'} variant={"outlined"} className={styles.buttonMakeFriend}>Gửi lời mời</Button>
                     </Box>
                 </form>
             </Box>

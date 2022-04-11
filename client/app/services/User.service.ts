@@ -71,6 +71,15 @@ export const userService = createApi({
                 body: data
             }),
             invalidatesTags: ['IUser'],
+        }),
+        cancelFriend: build.mutation<void, string>({
+            query: (id) => ({
+                method: 'POST',
+                url: `/cancel-friend`,
+                body: {
+                    userId: id
+                }
+            }),
         })
     }),
 });
@@ -80,5 +89,6 @@ export const {
     useAddFriendMutation,
     useRemoveFriendRequestMutation,
     useAcceptFriendRequestMutation,
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    useCancelFriendMutation
 } = userService;

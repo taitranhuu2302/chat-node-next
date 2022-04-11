@@ -15,9 +15,9 @@ const SidebarFriend = () => {
         <Card variant="outlined" className={styles.root}>
             <CardContent className={styles.cardContent}>
                 <Box className={styles.cardHeader}>
-                    <Typography className={styles.title}>Friends</Typography>
-                    <Button className={styles.buttonAddFriend} onClick={() => setOpenAdd(true)} startIcon={<AddIcon/>}>Add
-                        Friends</Button>
+                    <Typography className={styles.title}>Bạn bè</Typography>
+                    <Button className={styles.buttonAddFriend} onClick={() => setOpenAdd(true)} startIcon={<AddIcon/>}>Thêm
+                        bạn bè</Button>
                     <ModalAddFriend open={openAdd} setOpen={setOpenAdd}/>
                 </Box>
                 <Box mb={2} className={styles.cardSearch}>
