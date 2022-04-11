@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
     Avatar,
     Box, Button, ButtonBase,
@@ -19,10 +19,12 @@ import {ButtonGreen} from "../commons/ButtonCustom";
 import {InputCustomBase} from '../commons/InputCustom';
 import {useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
-import {useForm} from "react-hook-form";
+import {SubmitHandler, useForm} from "react-hook-form";
 import * as yup from 'yup';
 import {yupResolver} from "@hookform/resolvers/yup";
 import {TextError} from '../commons/TextCustom';
+import {useUpdateUserMutation} from "../app/services/User.service";
+import {toast} from "react-toastify";
 
 interface IProps {
     open: boolean;
@@ -46,20 +48,61 @@ const schema = yup.object().shape({
 
 const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
     const {user} = useAppSelector((state: RootState) => state.userSlice)
+    const [updateUserApi] = useUpdateUserMutation();
     const {register, setValue, handleSubmit, formState: {errors}} = useForm<Inputs>({
         mode: 'onBlur',
         resolver: yupResolver(schema),
     })
     const [avatar, setAvatar] = useState(user.avatar)
+    const avatarRef = useRef<any>(null);
 
     useEffect(() => {
         setValue('fullName', user.full_name)
         setValue('email', user.email)
-        setValue('phone', user.phone)
-        setValue('address', user.address)
-        setValue('avatar', user.avatar)
-
+        setValue('phone', user.phone || "")
+        setValue('address', user.address || "")
+        setValue('avatar', user.avatar || "")
     }, [user])
+
+    const changeAvatar = (e: any) => {
+        const file = e.target.files[0];
+        const fr = new FileReader();
+        fr.readAsDataURL(file);
+        fr.onload = (event: any) => {
+            setAvatar(event.target.result)
+        }
+        // console.log(avatarRef.current.value)
+    }
+
+    const onUpdateUser: SubmitHandler<Inputs> = async (data) => {
+        const request = {
+            full_name: data.fullName,
+            number_phone: data.phone,
+            address: data.address,
+            avatar,
+        }
+
+        await updateUserApi(request).then((res: any) => {
+            if (!res?.error) {
+                toast.success('Update profile successfully', {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    draggable: true,
+                });
+            } else {
+                toast.error('Update profile failed', {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    draggable: true,
+                });
+            }
+        });
+
+    }
 
     return (
         <Modal
@@ -77,7 +120,7 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
                         <CloseIcon/>
                     </IconButton>
                 </Box>
-                <form className={styles.content}>
+                <form className={styles.content} onSubmit={handleSubmit(onUpdateUser)}>
 
                     <Box className={styles.inputGroup}>
                         <label>Email</label>
@@ -93,7 +136,7 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
                         <label>Avatar</label>
                         <Box display={'flex'} alignItems={'center'} gap={2}>
                             <Avatar src={avatar}/>
-                            <InputCustomBase type={'file'}/>
+                            <InputCustomBase onChange={changeAvatar} ref={avatarRef} type={'file'}/>
                         </Box>
                     </Box>
                     <Box className={styles.inputGroup}>
@@ -108,7 +151,7 @@ const ProfileComponent: React.FC<IProps> = ({open, setOpen}) => {
                     </Box>
                     {errors.phone && <TextError>{errors.phone.message}</TextError>}
                     <Box className={styles.footer}>
-                        <ButtonBase className={styles.button}>Save</ButtonBase>
+                        <ButtonBase type={'submit'} className={styles.button}>Save</ButtonBase>
                     </Box>
                 </form>
             </Box>

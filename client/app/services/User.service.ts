@@ -12,8 +12,16 @@ interface IAddFriend {
 interface IRemoveFriendPending {
     userId: string;
 }
+
 interface IAcceptFriend {
     userId: string;
+}
+
+interface IUpdateUser {
+    full_name: string;
+    avatar: string;
+    number_phone: string;
+    address: string;
 }
 
 export const userService = createApi({
@@ -55,8 +63,22 @@ export const userService = createApi({
                 url: `/accept-friend`,
                 body: data
             }),
+        }),
+        updateUser: build.mutation<IUser, IUpdateUser>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/update-user`,
+                body: data
+            }),
+            invalidatesTags: ['IUser'],
         })
     }),
 });
 
-export const {useGetUserQuery, useAddFriendMutation, useRemoveFriendRequestMutation, useAcceptFriendRequestMutation} = userService;
+export const {
+    useGetUserQuery,
+    useAddFriendMutation,
+    useRemoveFriendRequestMutation,
+    useAcceptFriendRequestMutation,
+    useUpdateUserMutation
+} = userService;

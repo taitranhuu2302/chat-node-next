@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useLayoutEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Box,
@@ -23,7 +23,6 @@ import {IUser} from "../app/models/User";
 export interface IChat {
     room: IRoom;
 }
-
 
 const ChatComponent: React.FC<IChat> = ({room}) => {
     const {user} = useAppSelector((state: RootState) => state.userSlice)

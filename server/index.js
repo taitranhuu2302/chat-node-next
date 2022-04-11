@@ -1,4 +1,5 @@
-const app = require("express")();
+const express = require('express')
+const app = express();
 const cors = require("cors");
 const server = require("http").createServer(app);
 const path = require("path");
@@ -24,7 +25,7 @@ app.use(session({
 require('./utils/Passport');
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser());
 app.use(
     cors({
@@ -33,9 +34,9 @@ app.use(
         credentials: true,
     })
 );
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(logger("dev"));
-
+app.use(express.static(path.join(__dirname, "public")));
 
 // Socket io
 const socket = require("./socket");

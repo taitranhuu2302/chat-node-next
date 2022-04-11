@@ -3,6 +3,9 @@ const User = require('../models/User')
 const Room = require('../models/Room')
 const ROOM_TYPE = require('../constants/RoomType')
 const Message = require('../models/Message')
+const fs = require('fs');
+const isBase64 = require('is-base64');
+const path = require('path')
 
 class UserController {
 
@@ -12,6 +15,54 @@ class UserController {
                 .then(data => {
                     return res.status(200).json(ResponseObject(200, "Find All User Success", data))
                 })
+        } catch (e) {
+            return res.status(500).json(ResponseObject(500, e.message))
+        }
+    }
+
+    async updateUser(req, res) {
+
+        // body {
+        //     full_name
+        //     avatar
+        //     address
+        //     number_phone
+        // }
+
+        try {
+            const { body } = req;
+            const idUser = req.userId;
+
+            const avatar = body.avatar;
+
+            let nameAvatar = null;
+            const base64 = avatar.split(';base64,').pop();
+            const type = avatar.split(';')[0].split('/')[1];
+
+            if (isBase64(base64)) {
+
+                const newNameAvatar = `avatar-${idUser}.${type}`;
+                nameAvatar = `http://localhost:${process.env.PORT}/images/` + newNameAvatar;
+                // path.join(__dirname, "public")
+                fs.writeFile(`public/images/${newNameAvatar}`, base64, { encoding: 'base64' }, function (err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('File created');
+                    }
+                })
+            }
+
+            const updateUser = {
+                full_name: body.full_name,
+                avatar: nameAvatar ? nameAvatar : body.avatar,
+                address: body.address,
+                number_phone: body.number_phone
+            }
+
+
+            const user = await User.findByIdAndUpdate(idUser, body, { new: true });
+            return res.status(200).json(ResponseObject(200, 'Update User Success', user));
         } catch (e) {
             return res.status(500).json(ResponseObject(500, e.message))
         }

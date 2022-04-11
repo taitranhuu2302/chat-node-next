@@ -1,9 +1,7 @@
-const mongoose = require('mongoose');
 const ResponseObject = require('../models/ResponseObject')
 const Room = require('../models/Room')
 
 class RoomController {
-
 
     async findAll(req, res) {
         try {
