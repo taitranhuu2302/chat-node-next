@@ -34,10 +34,10 @@ export const messageService = createApi({
             providesTags: ['IMessage'],
         }),
         sendMessage: build.mutation<void, SendMessage>({
-            query: ({text, roomId}) => ({
+            query: ({text, roomId, images}) => ({
                 method: 'POST',
                 url: `/${roomId}`,
-                body: {text}
+                body: {text, images}
             }),
         })
     }),

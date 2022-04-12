@@ -1,5 +1,8 @@
+const isBase64 = require('is-base64');
 const Message = require('../models/Message');
 const ResponseObject = require('../models/ResponseObject');
+const randomstring = require("randomstring");
+const fs = require('fs');
 
 class MessageController {
 
@@ -23,14 +26,44 @@ class MessageController {
     async sendMessage(req, res) {
         try {
             const roomId = req.params.roomId;
-            const body = req.body;
-            let message = new Message(body);
+            const { text, images } = req.body;
+
+            let message = new Message();
+            text && (message.text = text);
 
             message.owner = req.userId;
             message.room = roomId;
+
+            let imagesId = [];
+
+            if (images && images.length > 0) {
+
+
+                images.forEach(image => {
+                    let base64 = image.split(';base64,').pop();
+                    let type = image.split(';')[0].split('/')[1];
+                    if (isBase64(base64)) {
+                        console.log(type)
+                        const newNameAvatar = `${randomstring.generate()}.${type}`;
+                        const nameAvatar = `http://localhost:${process.env.PORT}/images/${newNameAvatar}`;
+                        imagesId = [...imagesId, nameAvatar];
+                        fs.writeFile(`public/images/${newNameAvatar}`, base64, { encoding: 'base64' }, function (err) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log('File created');
+                            }
+                        })
+                    }
+                })
+            }
+
+            message.image = imagesId;
             message.save();
 
+
             message = await Message.populate(message, { path: "owner", select: "_id email full_name avatar" })
+
 
             req.io.in(roomId).emit('chat_message', message);
 

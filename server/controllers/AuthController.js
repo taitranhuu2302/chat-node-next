@@ -16,7 +16,6 @@ class AuthController {
             }
 
             return res.status(200).json(ResponseObject(200, "success", response));
-
         } else {
             return res.status(400).json(ResponseObject(400, 'Authentication failed!'))
         }

@@ -22,7 +22,9 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-require('./utils/Passport');
+require('./utils/PassportGoogle');
+require('./utils/PassportFacebook');
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.json({ limit: '50mb' }));

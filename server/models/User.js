@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema(
         friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
         friend_pending: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
         is_active: { type: Boolean, default: true },
-        googleId: { type: String }
+        googleId: { type: String },
+        facebookId: { type: String }
     },
     {
         timestamps: true

@@ -13,6 +13,7 @@ module.exports = withImage({
         URL_API: process.env.URL_API,
         URL_LOGIN_GOOGLE: process.env.URL_LOGIN_GOOGLE,
         URL_LOGIN_GOOGLE_CALLBACK: process.env.URL_LOGIN_GOOGLE_CALLBACK,
-
+        URL_LOGIN_FACEBOOK: process.env.URL_LOGIN_FACEBOOK,
+        URL_LOGIN_FACEBOOK_CALLBACK: process.env.URL_LOGIN_FACEBOOK_CALLBACK
     }
 })
