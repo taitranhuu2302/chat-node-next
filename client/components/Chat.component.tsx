@@ -5,7 +5,7 @@ import {
     Button, ButtonBase,
     IconButton,
     InputAdornment,
-    TextField,
+    TextField, Tooltip,
     Typography,
 } from "@mui/material";
 import styles from "../styles/Chat.module.scss";
@@ -26,6 +26,8 @@ import {IMessage} from "../app/models/Message";
 import {sendMessage} from "../app/features/Message.slice";
 import CloseIcon from '@mui/icons-material/Close';
 import {v4 as uuidv4} from 'uuid';
+import Fancybox from "./Fancybox";
+
 
 export interface IChat {
     room: IRoom;
@@ -111,35 +113,51 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
         });
     }
 
-    console.log(messages)
-
     const renderChat = useMemo(() => {
         console.log('re-render')
-        return messages.map((message, index) => {
+        return messages.map((message, index, arr) => {
             if (message.owner._id === user._id) {
-                return <Box key={index} className={styles.wrapperContentRight}>
-                    <Typography className={styles.username}>
-                        {message.owner.full_name}
-                    </Typography>
-                    <Typography className={styles.textRight}>
-                        {message.text && message.text}
-                        {message.image && message.image.map((img, index) => {
-                            return <img className={styles.messageImage} key={index} src={img} alt=""/>
-                        })}
-                    </Typography>
-                </Box>
+                return (
+                    <Box key={index} className={`${styles.wrapperContent} ${styles.contentRight}`}>
+                        <Tooltip title={message.owner.full_name}>
+                            <Avatar src={message.owner.avatar}
+                                    sx={{width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px'}}/>
+                        </Tooltip>
+                        <Box className={styles.content}>
+                            {message.text && <Typography className={styles.text}>{message.text}</Typography>}
+                            {message.image && (
+                                <Box className={styles.wrapperMessageImage}>
+                                    {message.image.map((img, index) => {
+                                        return <a key={index} data-fancybox="gallery" href={img}>
+                                            <img src={img} alt=""/>
+                                        </a>
+                                    })}
+                                </Box>
+                            )}
+                        </Box>
+                    </Box>
+                )
             } else {
-                return <Box key={index} className={styles.wrapperContentLeft}>
-                    <Typography variant="caption" className={styles.username}>
-                        {message.owner.full_name}
-                    </Typography>
-                    <Typography className={styles.textLeft}>
-                        {message.text}
-                    </Typography>
+                return <Box key={index} className={`${styles.wrapperContent} ${styles.contentLeft}`}>
+                    <Tooltip title={message.owner.full_name}>
+                        <Avatar src={message.owner.avatar}
+                                sx={{width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px'}}/>
+                    </Tooltip>
+                    <Box className={styles.content}>
+                        {message.text && <Typography className={styles.text}>{message.text}</Typography>}
+                        <Box className={styles.wrapperMessageImage}>
+                            {message.image && message.image.map((img, index) => {
+                                return <a key={index} data-fancybox="gallery" href={img}>
+                                    <img src={img} alt=""/>
+                                </a>
+                            })}
+                        </Box>
+                    </Box>
                 </Box>
             }
         })
     }, [messages, user._id]);
+
 
     const handleRemoveImage = (id: string) => {
         setImages(images.filter(img => img.id !== id));
@@ -168,7 +186,9 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
-                {renderChat}
+                <Fancybox>
+                    {renderChat}
+                </Fancybox>
                 {(messages.length !== totalMessage || messages.length > 10) &&
                     <Box display={'flex'} justifyContent={'center'}>
                         <ButtonBase
@@ -176,7 +196,8 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
                             sx={{padding: '6px 12px', backgroundColor: '#fff', borderRadius: '4px', fontSize: '14px'}}>
                             Xem thêm
                         </ButtonBase>
-                    </Box>}
+                    </Box>
+                }
             </Box>
             <Box className={styles.chatFooter}>
                 {images.length > 0 && (

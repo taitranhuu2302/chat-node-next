@@ -22,11 +22,6 @@ const Login: NextPage<Props> = () => {
         await router.push(URL);
     }
 
-    const onLoginFacebook = async () => {
-        const URL: string = process.env.URL_LOGIN_FACEBOOK || 'http://localhost:4000/auth/facebook';
-        await router.push(URL);
-    }
-
     return (
         <>
             <Head>
@@ -62,9 +57,6 @@ const Login: NextPage<Props> = () => {
                             Login with your social media account.
                         </Typography>
                         <Box mt={2}>
-                            <IconButton onClick={onLoginFacebook} color={'primary'}>
-                                <FacebookIcon fontSize={'large'}/>
-                            </IconButton>
                             <IconButton onClick={onLoginGoogle} color={'error'}>
                                 <GoogleIcon fontSize={'large'}/>
                             </IconButton>
