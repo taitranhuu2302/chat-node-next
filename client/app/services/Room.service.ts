@@ -18,7 +18,10 @@ export const roomService = createApi({
     }),
     tagTypes: ['IRoom'],
     endpoints: (build) => ({
-        getRoom: build.query<IResponseObject<IRoom>, string>({
+        getRoom: build.query<IResponseObject<{
+            room: IRoom
+            total_message: number
+        }>, string>({
             query: (id) => `/${id}`,
             providesTags: ['IRoom'],
         })

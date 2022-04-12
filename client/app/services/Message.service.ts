@@ -11,6 +11,11 @@ type SendMessage = {
     roomId: string;
 }
 
+type GetMessages = {
+    roomId: string;
+    limit: number;
+}
+
 export const messageService = createApi({
     reducerPath: "messageService",
     baseQuery: fetchBaseQuery({
@@ -24,8 +29,8 @@ export const messageService = createApi({
     }),
     tagTypes: ['IMessage'],
     endpoints: (build) => ({
-        getMessageByRoom: build.query<IResponseListObject<IMessage>, string>({
-            query: (roomId) => `/${roomId}`,
+        getMessageByRoom: build.query<IResponseListObject<IMessage>, GetMessages>({
+            query: (data) => `/${data.roomId}?limit=${data.limit}`,
             providesTags: ['IMessage'],
         }),
         sendMessage: build.mutation<void, SendMessage>({

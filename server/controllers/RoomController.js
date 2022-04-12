@@ -1,3 +1,4 @@
+const Message = require('../models/Message');
 const ResponseObject = require('../models/ResponseObject')
 const Room = require('../models/Room')
 
@@ -24,8 +25,19 @@ class RoomController {
     async findById(req, res) {
         try {
             const roomId = req.params.roomId;
+
+            let countMessage = 0;
+
+            await Message.find({ room: roomId })
+                .then(data => {
+                    countMessage = data.length;
+                });
+
             await Room.findById(roomId).populate('members', '_id email full_name avatar').then(data => {
-                return res.status(200).json(ResponseObject(200, 'Find Room Success', data));
+                return res.status(200).json(ResponseObject(200, 'Find Room Success', {
+                    room: data,
+                    total_message: countMessage
+                }));
             });
         } catch (e) {
             return res.json(ResponseObject(500, e.message))

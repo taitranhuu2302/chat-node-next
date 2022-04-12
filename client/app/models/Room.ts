@@ -10,4 +10,5 @@ export interface IRoom {
     avatar: string;
     members: IUser[];
     room_type: string;
+    total_message: number
 }

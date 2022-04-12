@@ -10,24 +10,29 @@ import {IRoom} from "../../app/models/Room";
 import LoadingComponent from "../../components/Loading.component";
 import {useGetRoomQuery} from "../../app/services/Room.service";
 import Router from "next/router";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export interface IRoomChat {
     id: string
 }
 
 const RoomChat: React.FC<IRoomChat> = ({id}) => {
-    const {refetch, data: responseMessage} = useGetMessageByRoomQuery(id);
-    const {data, isLoading} = useGetRoomQuery(id);
-
+    const [limit, setLimit] = React.useState(10);
+    const {refetch: refetchMessage, data: responseMessage} = useGetMessageByRoomQuery({
+        roomId: id,
+        limit
+    });
+    const {data, refetch: refetchRoom, isLoading} = useGetRoomQuery(id);
     useEffect(() => {
-        refetch();
-    }, [id, refetch])
+        refetchMessage();
+        refetchRoom()
+    }, [id, refetchMessage, refetchRoom]);
 
-    useEffect(() => {
-        if (!data) {
-            Router.replace('/')
-        }
-    }, [data])
+    const onGetMore = (n: number) => {
+        setLimit(limit + n);
+        refetchMessage();
+    }
+
 
     return (
         <>
@@ -36,7 +41,7 @@ const RoomChat: React.FC<IRoomChat> = ({id}) => {
                 <title>Chat Room</title>
             </Head>
             <MainLayout>
-                {isLoading ? <LoadingComponent/> : (data && <ChatComponent room={data.body}/>)}
+                {isLoading ? <LoadingComponent/> : (data && <ChatComponent onGetMore={onGetMore} room={data.body.room} totalMessage={data.body.total_message}/>)}
             </MainLayout>
         </>
     );

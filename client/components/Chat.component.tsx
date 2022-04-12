@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {
     Avatar,
     Box,
-    Button,
+    Button, ButtonBase,
     IconButton,
     InputAdornment,
     TextField,
@@ -15,18 +15,21 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import { IRoom, PRIVATE_ROOM } from "../app/models/Room";
-import { useAppDispatch, useAppSelector } from "../app/hook";
-import { RootState } from "../app/store";
-import { IUser } from "../app/models/User";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { useSendMessageMutation } from "../app/services/Message.service";
-import { SocketContext } from "../context/SocketProvider";
-import { IMessage } from "../app/models/Message";
-import { sendMessage } from "../app/features/Message.slice";
+import {IRoom, PRIVATE_ROOM} from "../app/models/Room";
+import {useAppDispatch, useAppSelector} from "../app/hook";
+import {RootState} from "../app/store";
+import {IUser} from "../app/models/User";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {useSendMessageMutation} from "../app/services/Message.service";
+import {SocketContext} from "../context/SocketProvider";
+import {IMessage} from "../app/models/Message";
+import {sendMessage} from "../app/features/Message.slice";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export interface IChat {
     room: IRoom;
+    onGetMore: (n: number) => void;
+    totalMessage: number
 }
 
 type Inputs = {
@@ -34,14 +37,14 @@ type Inputs = {
 }
 
 
-const ChatComponent: React.FC<IChat> = ({ room }) => {
+const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
     const socket = useContext(SocketContext);
     const [sendMessageApi] = useSendMessageMutation();
-    const { user } = useAppSelector((state: RootState) => state.userSlice)
-    const { messages } = useAppSelector((state: RootState) => state.messageSlice);
+    const {user} = useAppSelector((state: RootState) => state.userSlice)
+    const {messages} = useAppSelector((state: RootState) => state.messageSlice);
     const [roomName, setRoomName] = useState("");
     const [roomAvatar, setRoomAvatar] = useState("");
-    const { register, handleSubmit, setValue } = useForm<Inputs>();
+    const {register, handleSubmit, setValue} = useForm<Inputs>();
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -106,12 +109,11 @@ const ChatComponent: React.FC<IChat> = ({ room }) => {
         })
     }, [messages, user._id]);
 
-
     return (
         <Box className={styles.root}>
             <Box className={styles.chatHeader}>
                 <Box className={styles.title}>
-                    <Avatar src={roomAvatar} />
+                    <Avatar src={roomAvatar}/>
                     <Box>
                         <Typography variant="h6">{roomName}</Typography>
                         <Typography variant="caption">Online</Typography>
@@ -119,36 +121,43 @@ const ChatComponent: React.FC<IChat> = ({ room }) => {
                 </Box>
                 <Box className={styles.actions}>
                     <Button className={styles.buttonGreen}>
-                        <LocalPhoneIcon />
+                        <LocalPhoneIcon/>
                     </Button>
                     <Button className={styles.buttonGray}>
-                        <VideocamIcon />
+                        <VideocamIcon/>
                     </Button>
                     <Button className={styles.buttonGray}>
-                        <MoreHorizIcon />
+                        <MoreHorizIcon/>
                     </Button>
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
                 {renderChat}
+                {(messages.length !== totalMessage) && <Box display={'flex'} justifyContent={'center'}>
+                    <ButtonBase
+                        onClick={() => onGetMore(10)}
+                        sx={{padding: '6px 12px', backgroundColor: '#fff', borderRadius: '4px', fontSize: '14px'}}>
+                        Xem thêm
+                    </ButtonBase>
+                </Box>}
             </Box>
             <Box className={styles.chatFooter}>
                 <form onSubmit={handleSubmit(handleSendMessage)}>
                     <TextField
                         variant={`outlined`}
                         className={styles.chatInput}
-                        {...register('text', { required: true })}
+                        {...register('text', {required: true})}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton>
-                                        <AttachmentIcon />
+                                        <AttachmentIcon/>
                                     </IconButton>
                                     <IconButton>
-                                        <MicIcon />
+                                        <MicIcon/>
                                     </IconButton>
-                                    <IconButton type="submit" sx={{ color: "#0abb87" }}>
-                                        <SendIcon />
+                                    <IconButton type="submit" sx={{color: "#0abb87"}}>
+                                        <SendIcon/>
                                     </IconButton>
                                 </InputAdornment>
                             ),
