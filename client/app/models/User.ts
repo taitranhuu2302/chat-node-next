@@ -10,4 +10,5 @@ export interface IUser {
     rooms: IRoom[];
     friends: IUser[];
     friend_pending: IUser[];
+    is_first_login: boolean;
 }

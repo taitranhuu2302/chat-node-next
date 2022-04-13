@@ -75,7 +75,7 @@ const Item: React.FC<IItem> = ({user}) => {
         await removeFriendRequestApi(data).then((res: any) => {
             if (res?.error) {
                 toast.error('Đã xảy ra lỗi', {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
                     closeOnClick: true,
@@ -84,7 +84,7 @@ const Item: React.FC<IItem> = ({user}) => {
             } else {
                 dispatch(removeFriendRequest(data))
                 toast.success('Xoá lời mời kết bạn thành công', {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
                     closeOnClick: true,
@@ -102,7 +102,7 @@ const Item: React.FC<IItem> = ({user}) => {
         await acceptFriendRequestApi(data).then((res: any) => {
             if (res?.error) {
                 toast.error('Đã xảy ra lỗi', {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
                     closeOnClick: true,
@@ -110,7 +110,7 @@ const Item: React.FC<IItem> = ({user}) => {
                 })
             } else {
                 toast.success('Đồng ý lời mời kết bạn thành công', {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
                     closeOnClick: true,

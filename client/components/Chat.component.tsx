@@ -67,7 +67,7 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
             socket.off('chat_message');
         }
 
-    }, [socket, messages, room._id, dispatch])
+    }, [socket, messages, room, dispatch])
 
     useEffect(() => {
         if (room.room_type === PRIVATE_ROOM) {
@@ -189,7 +189,7 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
                 <Fancybox>
                     {renderChat}
                 </Fancybox>
-                {(messages.length !== totalMessage || messages.length > 10) &&
+                {(messages.length !== totalMessage && messages.length > 10) &&
                     <Box display={'flex'} justifyContent={'center'}>
                         <ButtonBase
                             onClick={() => onGetMore(10)}

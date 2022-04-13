@@ -24,6 +24,12 @@ interface IUpdateUser {
     address: string;
 }
 
+type RequestChangePassword = {
+    password: string;
+    confirm_password: string;
+    is_first_login: boolean;
+}
+
 export const userService = createApi({
     reducerPath: "userService",
     baseQuery: fetchBaseQuery({
@@ -80,6 +86,13 @@ export const userService = createApi({
                     userId: id
                 }
             }),
+        }),
+        changePassword: build.mutation<void, RequestChangePassword>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/change-password`,
+                body: data
+            }),
         })
     }),
 });
@@ -90,5 +103,6 @@ export const {
     useRemoveFriendRequestMutation,
     useAcceptFriendRequestMutation,
     useUpdateUserMutation,
-    useCancelFriendMutation
+    useCancelFriendMutation,
+    useChangePasswordMutation
 } = userService;

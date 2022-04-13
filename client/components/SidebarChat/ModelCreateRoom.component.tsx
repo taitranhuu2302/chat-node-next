@@ -1,20 +1,18 @@
 import React, {useState} from 'react';
 import {
+    Autocomplete,
     Box,
+    Button,
     FormControl,
     IconButton,
     InputLabel,
     Modal,
     TextField,
-    Typography,
-    Autocomplete,
-    Button
+    Typography
 } from "@mui/material";
 import styles from '../styles/ModalCreateRoom.module.scss';
 import GroupsIcon from '@mui/icons-material/Groups';
 import CloseIcon from '@mui/icons-material/Close';
-import {useForm, SubmitHandler} from "react-hook-form";
-import {toast} from 'react-toastify'
 
 interface IModalCreateRoom {
     setOpen: (open: boolean) => void;

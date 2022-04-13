@@ -9,17 +9,64 @@ import {useRouter} from "next/router";
 import {NextPage} from "next";
 import Image from 'next/image'
 import {styled} from "@mui/system";
+import * as yup from 'yup';
+import {yupResolver} from "@hookform/resolvers/yup";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {usePostLoginMutation} from "../../app/services/Auth.service";
+import {toast} from "react-toastify";
+import Cookies from "universal-cookie";
+
 
 interface Props {
 
 }
 
+const schema = yup.object().shape({
+    email: yup.string().email('Email chưa đúng định dạng').required('Email không được để trống'),
+    password: yup.string().required('Mật khẩu không được để trống'),
+});
+
+type Inputs = {
+    email: string,
+    password: string,
+}
+
 const Login: NextPage<Props> = () => {
     const router = useRouter();
+    const [postLoginApi] = usePostLoginMutation();
+    const [error, setError] = React.useState<string | null>(null);
+    const cookies = new Cookies();
+    const {register, setValue, handleSubmit, formState: {errors}} = useForm<Inputs>({
+        resolver: yupResolver(schema),
+    })
 
     const onLoginGoogle = async () => {
         const URL: string = process.env.URL_LOGIN_GOOGLE || 'http://localhost:4000/auth/google';
         await router.push(URL);
+    }
+
+    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+
+        await postLoginApi(data).then(async (res: any) => {
+            if (res.error?.data.status === 400) {
+                setError('Email hoặc mật khẩu không đúng');
+                return;
+            }
+
+            toast.success('Đăng nhập thành công', {
+                position: 'top-right',
+                autoClose: 2000,
+                pauseOnHover: false,
+            });
+            console.log(res.data.body)
+            const {token, expires_in} = res.data.body;
+            await cookies.set('auth', token, {path: '/', expires: new Date(Date.now() + expires_in)});
+            await router.push('/');
+            setError('')
+            setValue('email', '');
+        })
+        setValue('password', '');
+
     }
 
     return (
@@ -29,7 +76,7 @@ const Login: NextPage<Props> = () => {
                 <title>Login</title>
             </Head>
             <Box className={styles.wrapper}>
-                <form className={styles.wrapperForm}>
+                <form className={styles.wrapperForm} onSubmit={handleSubmit(onSubmit)}>
                     <Box className={styles.wrapperLogo}>
                         <Image src='/images/LogoLogin.png' width={50} height={50} alt={'Logo'}/>
                     </Box>
@@ -37,8 +84,11 @@ const Login: NextPage<Props> = () => {
                         <Typography fontSize={20} color={'darkslategray'}>Sign In</Typography>
                     </Box>
                     <Box>
-                        <Input type="text" placeholder='Email'/>
-                        <Input type="password" placeholder='Password'/>
+                        <Input {...register('email')} type="text" placeholder='Email'/>
+                        {errors.email && <Typography mb={'10px'} color={'red'}>{errors.email.message}</Typography>}
+                        <Input {...register('password')} type="password" placeholder='Password'/>
+                        {errors.password && <Typography color={'red'}>{errors.password.message}</Typography>}
+                        {error && <Typography color={'red'}>{error}</Typography>}
                     </Box>
                     <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                         <FormControlLabel label={'Remember Me'} control={<Checkbox color="success"/>}/>
@@ -49,7 +99,7 @@ const Login: NextPage<Props> = () => {
                         </Link>
                     </Box>
                     <Box mb={3}>
-                        <ButtonBase className={styles.buttonSubmit}>Sign In</ButtonBase>
+                        <ButtonBase type={'submit'} className={styles.buttonSubmit}>Sign In</ButtonBase>
                     </Box>
                     <Divider/>
                     <Box my={2}>

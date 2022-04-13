@@ -19,6 +19,7 @@ const initialState: IState = {
         rooms: [],
         friends: [],
         friend_pending: [],
+        is_first_login: false,
     }
 };
 

@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema(
         friend_pending: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
         is_active: { type: Boolean, default: true },
         googleId: { type: String },
-        facebookId: { type: String }
+        facebookId: { type: String },
+        is_first_login: { type: Boolean, default: true },
     },
     {
         timestamps: true

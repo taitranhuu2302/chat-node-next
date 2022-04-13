@@ -5,7 +5,8 @@ const ROOM_TYPE = require('../constants/RoomType')
 const Message = require('../models/Message')
 const fs = require('fs');
 const isBase64 = require('is-base64');
-const path = require('path')
+const bcrypt = require('bcrypt');
+
 
 class UserController {
 
@@ -20,7 +21,33 @@ class UserController {
         }
     }
 
-    async updateUser(req, res) {
+    async changePassword(req, res) {
+        try {
+            const idUser = req.userId;
+            const { password, confirm_password, is_first_login } = req.body;
+
+            if (is_first_login) {
+                if (password !== confirm_password) {
+                    return res.status(400).json(ResponseObject(400, "Password and Confirm Password not match"))
+                }
+                const newPassword = await bcrypt.hash(password, 10)
+                await User.findByIdAndUpdate(idUser, { password: newPassword, is_first_login: false }, { new: true })
+            } else {
+                const user = await User.findById(idUser);
+                const isMatch = await bcrypt.compare(password, user.password);
+                if (!isMatch) {
+                    return res.status(400).json(ResponseObject(400, "Password not match"))
+                }
+                const newPassword = bcrypt.hash(password, 10)
+                await User.findByIdAndUpdate(idUser, { password: newPassword }, { new: true })
+            }
+            return res.status(200).json(ResponseObject(200, "Change Password Success"))
+        } catch (e) {
+            return res.status(500).json(ResponseObject(500, e.message))
+        }
+    }
+
+    async updateInfoUser(req, res) {
 
         // body {
         //     full_name
@@ -115,20 +142,24 @@ class UserController {
                 email: emailUserTo
             });
 
+            if (!userTo) {
+                return res.status(400).json(ResponseObject(400, "Người dùng không tồn tại"))
+            }
+
             if (userTo._id.toString() === idUserCurrent) {
-                return res.status(400).json(ResponseObject(400, "You can't add yourself as a friend"))
+                return res.status(400).json(ResponseObject(400, "Bạn không thể kết bạn với chính bạn"))
             }
 
             const userCurrent = await User.findById({ _id: idUserCurrent }, { _id: 1, email: 1, full_name: 1, avatar: 1 });
 
             const checkFriend = userTo.friends.findIndex(userId => userId.toString() === idUserCurrent);
             if (checkFriend !== -1) {
-                return res.status(400).json(ResponseObject(400, "User is already your friend"))
+                return res.status(400).json(ResponseObject(400, "Bạn đã là bạn bè"))
             }
 
             const checkFriendPending = userTo.friend_pending.findIndex(userId => userId.toString() === idUserCurrent);
             if (checkFriendPending !== -1) {
-                return res.status(400).json(ResponseObject(400, "You have already sent a friend request to this user"))
+                return res.status(400).json(ResponseObject(400, "Bạn đã gửi yêu cầu kết bạn"))
             }
 
             userTo.friend_pending.push(idUserCurrent);
@@ -285,6 +316,9 @@ class UserController {
             await userCancel.save();
 
             await Message.deleteMany({ room: roomPrivate._id })
+
+            await req.io.in(userCancel._id.toString()).emit('friend_cancel', {});
+            await req.io.in(userCurrent._id.toString()).emit('friend_cancel', {});
 
             return res.status(200).json(ResponseObject(200, "Cancel Friend Success"))
 

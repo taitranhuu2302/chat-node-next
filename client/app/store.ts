@@ -7,10 +7,15 @@ import userSlice from "./features/User.slice";
 import {messageService} from "./services/Message.service";
 import messageSlice from "./features/Message.slice";
 import {roomService} from "./services/Room.service";
+import {authService} from "./services/Auth.service";
 
-const middleware = [...getDefaultMiddleware(),
-    userService.middleware, messageService.middleware,
-    roomService.middleware];
+const middleware = [
+    ...getDefaultMiddleware(),
+    userService.middleware,
+    messageService.middleware,
+    roomService.middleware,
+    authService.middleware
+];
 
 export const store = configureStore({
     reducer: {
@@ -19,7 +24,8 @@ export const store = configureStore({
         messageSlice,
         [userService.reducerPath]: userService.reducer,
         [roomService.reducerPath]: roomService.reducer,
-        [messageService.reducerPath]: messageService.reducer
+        [messageService.reducerPath]: messageService.reducer,
+        [authService.reducerPath]: authService.reducer
     },
     middleware,
 });

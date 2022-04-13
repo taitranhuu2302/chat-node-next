@@ -37,12 +37,12 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
                 rooms: data?.body?.rooms ? data?.body.rooms : []
             }
             socket.emit('user_connected', user)
-        };
+        }
 
         socket.on('friend_pending', (data: IUser) => {
             dispatch(addFriendRequest(data))
             toast.info(`${data.email} đã gửi lời mời kết bạn`, {
-                position: "bottom-right",
+                position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -50,23 +50,24 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
         })
 
         socket.on('friend_accept', (data: FriendAccept) => {
-            dispatch(addRoom(data.room));
-            dispatch(addFriend(data.user));
-            socket.emit('user_connected', data.user);
             refetch();
             if (data.message) {
                 toast.success(`${data.user.full_name} đã đồng ý lời mời kết bạn`, {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
                     closeOnClick: true,
                 })
             }
         })
+        socket.on('friend_cancel', () => {
+            refetch();
+        })
 
         return () => {
             socket.off('friend_pending');
             socket.off('friend_accept');
+            socket.off('friend_cancel');
         }
     }, [data])
 

@@ -43,24 +43,21 @@ const ModalAddFriendComponent: React.FC<IModalAddFriend> = ({open, setOpen}) => 
     useLayoutEffect(() => {
         if (error) {
             // @ts-ignore
-            toast.error('Đã xảy ra lỗi', {
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
+            toast.error(error.data.message, {
+                position: "top-right",
+                autoClose: 3000,
                 closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
+                pauseOnHover: false,
             });
         }
 
         if (data) {
             toast.success('Gửi lời mời kết bạn thành công', {
-                position: "bottom-right",
+                position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: true,
-                pauseOnHover: true,
+                pauseOnHover: false,
                 draggable: true,
                 progress: undefined,
             });

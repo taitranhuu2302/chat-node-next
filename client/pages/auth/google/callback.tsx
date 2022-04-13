@@ -24,9 +24,13 @@ const GoogleLogin: React.FC<Props> = (props) => {
                 }).then(response => response.json())
                     .then(async (data) => {
                         if (data?.status === 200) {
-                            const {token, expires_in} = data.body;
+                            const {token, expires_in, user} = data.body;
                             await cookies.set('auth', token, {path: '/', expires: new Date(Date.now() + expires_in)});
-                            await router.push('/');
+                            if (user.is_first_login) {
+                                await router.push('/new-password');
+                            } else {
+                                await router.push('/');
+                            }
                         } else {
                             await router.replace('/login');
                         }

@@ -33,12 +33,16 @@ class RoomController {
                     countMessage = data.length;
                 });
 
-            await Room.findById(roomId).populate('members', '_id email full_name avatar').then(data => {
-                return res.status(200).json(ResponseObject(200, 'Find Room Success', {
-                    room: data,
-                    total_message: countMessage
-                }));
-            });
+            const room = await Room.findById(roomId).populate('members', '_id email full_name avatar');
+
+            if (!room) {
+                return res.json(ResponseObject(404, 'Room Not Found'));
+            }
+
+            return res.status(200).json(ResponseObject(200, 'Find Room Success', {
+                room,
+                total_message: countMessage
+            }));
         } catch (e) {
             return res.json(ResponseObject(500, e.message))
         }
