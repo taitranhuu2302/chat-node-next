@@ -13,12 +13,12 @@ import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import Router from 'next/router'
 import {PRIVATE_ROOM} from "../../app/models/Room";
 import DialogConfirmComponent from "../DialogConfirm.component";
-import {cancelFriend} from "../../app/features/User.slice";
 import {toast} from "react-toastify";
-import {useCancelFriendMutation} from "../../app/services/User.service";
-import {useAppDispatch} from "../../app/hook";
+import {useAppDispatch, useAppSelector} from "../../app/hook";
 import {changeTab} from "../../app/features/Tab.slice";
 import {useLeaveRoomMutation} from "../../app/services/Room.service";
+import {RootState} from "../../app/store";
+import {useSendMessageMutation} from "../../app/services/Message.service";
 
 export interface ItemChat {
     name: string;
@@ -32,6 +32,7 @@ const ItemChat: React.FC<ItemChat> = ({roomType, name, avatar, id}) => {
     const [anchorEl, setAnchorEl] = useState<any>(null);
     const [leaveRoomApi] = useLeaveRoomMutation();
     const open = Boolean(anchorEl);
+
     const handleClick = (event: React.MouseEvent) => {
         setAnchorEl(event.currentTarget);
     };
@@ -54,6 +55,7 @@ const ItemChat: React.FC<ItemChat> = ({roomType, name, avatar, id}) => {
                     autoClose: 3000,
                     pauseOnHover: false
                 })
+                Router.replace('/');
             } else {
                 toast.error('Có lỗi xảy ra', {
                     position: 'top-right',

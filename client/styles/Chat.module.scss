@@ -53,6 +53,7 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
     .contentLeft {
       .content {
         .text {
@@ -66,10 +67,27 @@
 
       .content {
         align-items: flex-end;
+
         .text {
           background-color: white;
         }
       }
+    }
+
+    .messageNotify {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+
+      .notifyText {
+        color: #6c757d;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #cdcdcd;
+        padding: 6px 12px;
+        border-radius: 6px;
+      }
+
     }
 
     .wrapperContent {
@@ -82,6 +100,7 @@
         display: flex;
         gap: 8px;
         flex-direction: column;
+
         .text {
           border-radius: 5px;
           color: #212529;
@@ -91,8 +110,10 @@
           width: fit-content;
           word-break: break-word;
         }
+
         .wrapperMessageImage {
           width: 45%;
+
           img {
             width: 100%;
             border-radius: 4px;

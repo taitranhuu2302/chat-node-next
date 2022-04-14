@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {IResponseListObject} from "../models/ResponseObject";
-import {IMessage} from "../models/Message";
+import {IMessage, MessageType} from "../models/Message";
 import Cookies from "universal-cookie";
 
 const BASE_URL = process.env.URL_API;
@@ -9,6 +9,7 @@ type SendMessage = {
     text: string;
     images?: string[];
     roomId: string;
+    type?: string;
 }
 
 type GetMessages = {

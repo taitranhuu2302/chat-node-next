@@ -8,6 +8,7 @@ import {useGetMessageByRoomQuery} from "../../app/services/Message.service";
 import LoadingComponent from "../../components/Loading.component";
 import {useGetRoomQuery} from "../../app/services/Room.service";
 import Router from "next/router";
+import {IRoom} from "../../app/models/Room";
 
 export interface IRoomChat {
     id: string
@@ -15,21 +16,21 @@ export interface IRoomChat {
 
 const RoomChat: React.FC<IRoomChat> = ({id}) => {
     const [limit, setLimit] = React.useState(10);
-    const {refetch: refetchMessage} = useGetMessageByRoomQuery({
+    const {refetch: refetchMessage, isLoading} = useGetMessageByRoomQuery({
         roomId: id,
         limit
     });
-    const {data, refetch: refetchRoom, isLoading} = useGetRoomQuery(id);
+    const {data: dataRoom, refetch: refetchRoom} = useGetRoomQuery(id);
+
     useEffect(() => {
         refetchMessage();
-        refetchRoom()
-    }, [id, refetchMessage, refetchRoom]);
+        refetchRoom();
+    }, [refetchMessage, id, refetchRoom]);
 
     const onGetMore = (n: number) => {
         setLimit(limit + n);
         refetchMessage();
     }
-
 
     return (
         <>
@@ -38,16 +39,19 @@ const RoomChat: React.FC<IRoomChat> = ({id}) => {
                 <title>Chat Room</title>
             </Head>
             <MainLayout>
-                {(isLoading && !data) ? <LoadingComponent/> : (data &&
-                    <ChatComponent onGetMore={onGetMore} room={data.body.room}
-                                   totalMessage={data.body.total_message}/>)
+                {isLoading ? <LoadingComponent/> :
+                    (dataRoom && <ChatComponent
+                        onGetMore={onGetMore}
+                        room={dataRoom.body.room}
+                        refetchRoom={refetchRoom}
+                        totalMessage={dataRoom.body.total_message}/>)
                 }
             </MainLayout>
         </>
     );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({query}) => {
+export const getServerSideProps: GetServerSideProps = async ({query, req, res}) => {
     const id = query.id;
 
     return {

@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {
     Avatar,
     Box,
-    Button, ButtonBase,
+    Button, ButtonBase, Drawer,
     IconButton,
     InputAdornment,
     TextField, Tooltip,
@@ -11,11 +11,10 @@ import {
 import styles from "../styles/Chat.module.scss";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import {IRoom, PRIVATE_ROOM} from "../app/models/Room";
+import {GROUP_ROOM, IRoom, PRIVATE_ROOM} from "../app/models/Room";
 import {useAppDispatch, useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
 import {IUser} from "../app/models/User";
@@ -27,12 +26,16 @@ import {sendMessage} from "../app/features/Message.slice";
 import CloseIcon from '@mui/icons-material/Close';
 import {v4 as uuidv4} from 'uuid';
 import Fancybox from "./Fancybox";
-
+import InfoIcon from '@mui/icons-material/Info';
+import SidebarInfoChatComponent from "./SidebarInfoChat/SidebarInfoChat.component";
+import {deleteRoom} from "../app/features/User.slice";
+import {useGetUserQuery} from "../app/services/User.service";
 
 export interface IChat {
     room: IRoom;
     onGetMore: (n: number) => void;
-    totalMessage: number
+    totalMessage: number;
+    refetchRoom: () => void;
 }
 
 type Inputs = {
@@ -44,7 +47,7 @@ type Image = {
     id: string;
 }
 
-const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
+const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchRoom}) => {
     const socket = useContext(SocketContext);
     const [sendMessageApi] = useSendMessageMutation();
     const {user} = useAppSelector((state: RootState) => state.userSlice)
@@ -55,28 +58,61 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
     const dispatch = useAppDispatch();
     const [images, setImages] = useState<Image[]>([]);
     const imageRef = useRef<any>(null)
+    const [open, setOpen] = useState(false);
+    const {refetch: refetchUser} = useGetUserQuery();
 
     useEffect(() => {
         socket.on('chat_message', (message: IMessage) => {
-            if (message.room === room._id) {
+            if (message.room === room?._id) {
                 dispatch(sendMessage(message));
             }
         });
 
+        socket.on('change_room_name', (message: IMessage) => {
+            if (message.room === room?._id) {
+                dispatch(sendMessage(message));
+                refetchRoom();
+            }
+        });
+
+        socket.on('change_avatar_room', (message: IMessage) => {
+            if (message.room === room?._id) {
+                dispatch(sendMessage(message));
+                refetchRoom();
+                refetchUser();
+            }
+        });
+
+        socket.on('leave_room', async (data: {
+            roomId: string,
+            message: IMessage
+        }) => {
+            if (data.message.room === room?._id) {
+                dispatch(deleteRoom(data.roomId))
+                dispatch(sendMessage(data.message))
+            }
+            return;
+        })
+
         return () => {
             socket.off('chat_message');
+            socket.off('leave_room');
+            socket.off('change_room_name');
+            socket.off('change_avatar_room');
         }
 
     }, [socket, messages, room, dispatch])
 
     useEffect(() => {
-        if (room.room_type === PRIVATE_ROOM) {
-            const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
-            setRoomName(userDiff.full_name);
-            setRoomAvatar(userDiff.avatar);
-        } else {
-            setRoomName(room.name)
-            setRoomAvatar(room.avatar)
+        if (room) {
+            if (room.room_type === PRIVATE_ROOM) {
+                const userDiff: IUser = room?.members.filter(u => u._id !== user._id)[0];
+                setRoomName(userDiff.full_name);
+                setRoomAvatar(userDiff.avatar);
+            } else {
+                setRoomName(room.name)
+                setRoomAvatar(room.avatar)
+            }
         }
     }, [room, user._id])
 
@@ -114,46 +150,58 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
     }
 
     const renderChat = useMemo(() => {
-        console.log('re-render')
-        return messages.map((message, index, arr) => {
-            if (message.owner._id === user._id) {
-                return (
-                    <Box key={index} className={`${styles.wrapperContent} ${styles.contentRight}`}>
+        return messages.map((message, index) => {
+            if (message.owner) {
+                if (message.owner._id === user._id) {
+                    return (
+                        <Box key={index} className={`${styles.wrapperContent} ${styles.contentRight}`}>
+                            <Tooltip title={message.owner.full_name}>
+                                <Avatar src={message.owner.avatar}
+                                        sx={{
+                                            width: '32px',
+                                            height: '32px',
+                                            alignSelf: 'flex-end',
+                                            marginBottom: '8px'
+                                        }}/>
+                            </Tooltip>
+                            <Box className={styles.content}>
+                                {message.text && <Typography className={styles.text}>{message.text}</Typography>}
+                                {message.image && (
+                                    <Box className={styles.wrapperMessageImage}>
+                                        {message.image.map((img, index) => {
+                                            return <a key={index} data-fancybox="gallery" href={img}>
+                                                <img src={img} alt=""/>
+                                            </a>
+                                        })}
+                                    </Box>
+                                )}
+                            </Box>
+                        </Box>
+                    )
+                } else {
+                    return <Box key={index} className={`${styles.wrapperContent} ${styles.contentLeft}`}>
                         <Tooltip title={message.owner.full_name}>
                             <Avatar src={message.owner.avatar}
                                     sx={{width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px'}}/>
                         </Tooltip>
                         <Box className={styles.content}>
                             {message.text && <Typography className={styles.text}>{message.text}</Typography>}
-                            {message.image && (
-                                <Box className={styles.wrapperMessageImage}>
-                                    {message.image.map((img, index) => {
-                                        return <a key={index} data-fancybox="gallery" href={img}>
-                                            <img src={img} alt=""/>
-                                        </a>
-                                    })}
-                                </Box>
-                            )}
+                            <Box className={styles.wrapperMessageImage}>
+                                {message.image && message.image.map((img, index) => {
+                                    return <a key={index} data-fancybox="gallery" href={img}>
+                                        <img src={img} alt=""/>
+                                    </a>
+                                })}
+                            </Box>
                         </Box>
+                    </Box>
+                }
+            } else {
+                return (
+                    <Box key={index} className={styles.messageNotify}>
+                        <Typography className={styles.notifyText}>{message.text}</Typography>
                     </Box>
                 )
-            } else {
-                return <Box key={index} className={`${styles.wrapperContent} ${styles.contentLeft}`}>
-                    <Tooltip title={message.owner.full_name}>
-                        <Avatar src={message.owner.avatar}
-                                sx={{width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px'}}/>
-                    </Tooltip>
-                    <Box className={styles.content}>
-                        {message.text && <Typography className={styles.text}>{message.text}</Typography>}
-                        <Box className={styles.wrapperMessageImage}>
-                            {message.image && message.image.map((img, index) => {
-                                return <a key={index} data-fancybox="gallery" href={img}>
-                                    <img src={img} alt=""/>
-                                </a>
-                            })}
-                        </Box>
-                    </Box>
-                </Box>
             }
         })
     }, [messages, user._id]);
@@ -180,14 +228,17 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
                     <Button className={styles.buttonGray}>
                         <VideocamIcon/>
                     </Button>
-                    <Button className={styles.buttonGray}>
-                        <MoreHorizIcon/>
-                    </Button>
+                    {room.room_type === GROUP_ROOM &&
+                        <Button onClick={() => setOpen(true)} className={styles.buttonGray}>
+                            <InfoIcon/>
+                        </Button>}
+                    <SidebarInfoChatComponent room={room} open={open} setOpen={setOpen}/>
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
                 <Fancybox>
                     {renderChat}
+
                 </Fancybox>
                 {(messages.length !== totalMessage && messages.length > 10) &&
                     <Box display={'flex'} justifyContent={'center'}>

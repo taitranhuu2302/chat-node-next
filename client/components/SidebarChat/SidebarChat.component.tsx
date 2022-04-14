@@ -1,5 +1,5 @@
 import { Box, Card, CardContent, Stack, Typography, Tooltip, List, InputBase } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import styles from "../../styles/SidebarChat.module.scss";
 import GroupsIcon from "@mui/icons-material/Groups";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
@@ -11,7 +11,6 @@ import {RootState} from "../../app/store";
 import {PRIVATE_ROOM} from "../../app/models/Room";
 import {IUser} from "../../app/models/User";
 import ModalCreateRoomComponent from "./ModelCreateRoom.component";
-// import ModalCreateRoomComponent from "./ModelCreateRoom.component";
 
 const ColorButton = styled(Button)<ButtonProps>(() => ({
     color: "black",
@@ -30,6 +29,21 @@ const InputSearch = styled(InputBase)(() => ({
 const SidebarChatComponent = () => {
     const [openCreateRoom, setOpenCreateRoom] = useState(false);
     const {user} = useAppSelector((state: RootState) => state.userSlice);
+    console.log(user)
+    const renderItemChat = useMemo(() => {
+        return user.rooms.map((room, index) => {
+            if (room.room_type === PRIVATE_ROOM) {
+                const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
+                return (
+                    <ItemChatComponent roomType={room.room_type} key={index} avatar={userDiff.avatar} name={userDiff.full_name} id={room._id}/>
+                )
+            } else {
+                return (
+                    <ItemChatComponent roomType={room.room_type} key={index} avatar={room.avatar} name={room.name} id={room._id}/>
+                )
+            }
+        })
+    }, [user])
 
     return (
         <Card variant="outlined" className={styles.root}>
@@ -54,18 +68,7 @@ const SidebarChatComponent = () => {
                     <InputSearch placeholder="Search" />
                 </Box>
                 <List className={styles.list}>
-                    {user.rooms.map((room, index) => {
-                        if (room.room_type === PRIVATE_ROOM) {
-                            const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
-                            return (
-                                <ItemChatComponent roomType={room.room_type} key={index} avatar={userDiff.avatar} name={userDiff.full_name} id={room._id}/>
-                            )
-                        } else {
-                            return (
-                                <ItemChatComponent roomType={room.room_type} key={index} avatar={room.avatar} name={room.name} id={room._id}/>
-                            )
-                        }
-                    })}
+                    {renderItemChat}
                 </List>
             </CardContent>
         </Card>

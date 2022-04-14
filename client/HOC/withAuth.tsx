@@ -26,9 +26,14 @@ const withAuth = (WrappedComponent: any) => {
                     if (!user?._id) {
                         refetch();
                     }
+                    setTimeout(() => {
+                        if (!user) {
+                            router.replace("/login");
+                        }
+                    }, 3000)
                 }
             })()
-        }, [router]);
+        }, [cookie, refetch, router, user]);
 
         return <>
             {!user?._id ? <LoadingComponent/> : <WrappedComponent {...props} />}

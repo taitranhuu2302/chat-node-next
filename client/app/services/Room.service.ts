@@ -44,8 +44,28 @@ export const roomService = createApi({
                 url: `/leave-room/${id}`,
             }),
             invalidatesTags: ['IRoom'],
-        })
+        }),
+        changeRoomName: build.mutation<void, { roomId: string, roomName: string }>({
+            query: (data) => ({
+                method: 'PUT',
+                url: `/change-room-name`,
+                body: data
+            }),
+        }),
+        changeRoomAvatar: build.mutation<void, { roomId: string, avatar: string }>({
+            query: (data) => ({
+                method: 'PUT',
+                url: `/change-room-avatar`,
+                body: data
+            }),
+        }),
     })
 })
 
-export const {useGetRoomQuery, useCreateRoomMutation, useLeaveRoomMutation} = roomService;
+export const {
+    useGetRoomQuery,
+    useCreateRoomMutation,
+    useLeaveRoomMutation,
+    useChangeRoomNameMutation,
+    useChangeRoomAvatarMutation
+} = roomService;
