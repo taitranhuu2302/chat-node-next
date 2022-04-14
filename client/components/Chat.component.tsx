@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {
     Avatar,
     Box,
-    Button, ButtonBase,
+    Button, ButtonBase, Drawer,
     IconButton,
     InputAdornment,
     TextField, Tooltip,
@@ -15,7 +15,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import {IRoom, PRIVATE_ROOM} from "../app/models/Room";
+import {GROUP_ROOM, IRoom, PRIVATE_ROOM} from "../app/models/Room";
 import {useAppDispatch, useAppSelector} from "../app/hook";
 import {RootState} from "../app/store";
 import {IUser} from "../app/models/User";
@@ -27,7 +27,8 @@ import {sendMessage} from "../app/features/Message.slice";
 import CloseIcon from '@mui/icons-material/Close';
 import {v4 as uuidv4} from 'uuid';
 import Fancybox from "./Fancybox";
-
+import InfoIcon from '@mui/icons-material/Info';
+import SidebarInfoChatComponent from "./SidebarInfoChat.component";
 
 export interface IChat {
     room: IRoom;
@@ -55,10 +56,11 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
     const dispatch = useAppDispatch();
     const [images, setImages] = useState<Image[]>([]);
     const imageRef = useRef<any>(null)
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         socket.on('chat_message', (message: IMessage) => {
-            if (message.room === room._id) {
+            if (message.room === room?._id) {
                 dispatch(sendMessage(message));
             }
         });
@@ -70,13 +72,15 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
     }, [socket, messages, room, dispatch])
 
     useEffect(() => {
-        if (room.room_type === PRIVATE_ROOM) {
-            const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
-            setRoomName(userDiff.full_name);
-            setRoomAvatar(userDiff.avatar);
-        } else {
-            setRoomName(room.name)
-            setRoomAvatar(room.avatar)
+        if (room) {
+            if (room.room_type === PRIVATE_ROOM) {
+                const userDiff: IUser = room?.members.filter(u => u._id !== user._id)[0];
+                setRoomName(userDiff.full_name);
+                setRoomAvatar(userDiff.avatar);
+            } else {
+                setRoomName(room.name)
+                setRoomAvatar(room.avatar)
+            }
         }
     }, [room, user._id])
 
@@ -180,9 +184,10 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage}) => {
                     <Button className={styles.buttonGray}>
                         <VideocamIcon/>
                     </Button>
-                    <Button className={styles.buttonGray}>
-                        <MoreHorizIcon/>
-                    </Button>
+                    {room.room_type === GROUP_ROOM && <Button onClick={() => setOpen(true)} className={styles.buttonGray}>
+                        <InfoIcon/>
+                    </Button>}
+                    <SidebarInfoChatComponent room={room} open={open} setOpen={setOpen}/>
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
