@@ -10,6 +10,7 @@ import {useAppSelector} from "../../app/hook";
 import {RootState} from "../../app/store";
 import {PRIVATE_ROOM} from "../../app/models/Room";
 import {IUser} from "../../app/models/User";
+import ModalCreateRoomComponent from "./ModelCreateRoom.component";
 // import ModalCreateRoomComponent from "./ModelCreateRoom.component";
 
 const ColorButton = styled(Button)<ButtonProps>(() => ({
@@ -41,7 +42,7 @@ const SidebarChatComponent = () => {
                                 <GroupsIcon />
                             </ColorButton>
                         </Tooltip>
-                        {/*<ModalCreateRoomComponent user={{}} open={openCreateRoom} setOpen={setOpenCreateRoom} users={{}}/>*/}
+                        <ModalCreateRoomComponent user={user} open={openCreateRoom} setOpen={setOpenCreateRoom} friends={user.friends}/>
                         <Tooltip title="New Chat" placement="top">
                             <ColorButton>
                                 <MessageOutlinedIcon />
@@ -57,11 +58,11 @@ const SidebarChatComponent = () => {
                         if (room.room_type === PRIVATE_ROOM) {
                             const userDiff: IUser = room.members.filter(u => u._id !== user._id)[0];
                             return (
-                                <ItemChatComponent key={index} avatar={userDiff.avatar} name={userDiff.full_name} id={room._id}/>
+                                <ItemChatComponent roomType={room.room_type} key={index} avatar={userDiff.avatar} name={userDiff.full_name} id={room._id}/>
                             )
                         } else {
                             return (
-                                <ItemChatComponent key={index} avatar={room.avatar} name={room.name} id={room._id}/>
+                                <ItemChatComponent roomType={room.room_type} key={index} avatar={room.avatar} name={room.name} id={room._id}/>
                             )
                         }
                     })}

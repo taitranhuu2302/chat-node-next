@@ -7,7 +7,12 @@ const socket = (io) => {
                 socket.join(room._id);
             })
         })
+
+        socket.on('join_room', (roomId) => {
+            socket.join(roomId);
+        })
     });
+
 };
 
 module.exports = socket;

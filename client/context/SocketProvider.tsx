@@ -3,7 +3,7 @@ import {io} from 'socket.io-client';
 import {useGetUserQuery} from "../app/services/User.service";
 import {IUser} from "../app/models/User";
 import {useAppDispatch} from "../app/hook";
-import {addFriend, addFriendRequest, addRoom} from "../app/features/User.slice";
+import {addFriend, addFriendRequest, addRoom, deleteRoom, newRoom} from "../app/features/User.slice";
 import {toast} from "react-toastify";
 import {IRoom} from "../app/models/Room";
 import {IMessage} from "../app/models/Message";
@@ -26,17 +26,16 @@ type FriendAccept = {
 }
 
 const SocketProvider: React.FC<IProps> = ({children}) => {
-    const {data, refetch} = useGetUserQuery();
+    const {data: user, refetch} = useGetUserQuery();
     const dispatch = useAppDispatch();
 
-
     useEffect(() => {
-        if (data) {
-            const user = {
-                ...data?.body,
-                rooms: data?.body?.rooms ? data?.body.rooms : []
+        if (user) {
+            const u = {
+                ...user?.body,
+                rooms: user?.body?.rooms ? user?.body.rooms : []
             }
-            socket.emit('user_connected', user)
+            socket.emit('user_connected', u)
         }
 
         socket.on('friend_pending', (data: IUser) => {
@@ -64,12 +63,60 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
             refetch();
         })
 
+        socket.on('new_room', (data: IRoom) => {
+            dispatch(newRoom(data));
+            socket.emit('join_room', data._id);
+            if (data.owner._id !== user?.body._id) {
+                toast.info(`${data.owner.full_name} đã mời bạn vào cuộc trò chuyện`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    pauseOnHover: false,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                })
+            }
+        })
+
+        socket.on('delete_room', (data: IRoom) => {
+            dispatch(deleteRoom(data._id))
+            if (data.owner._id !== user?.body._id) {
+                toast.info(`${data.owner.full_name} đã xóa cuộc trò chuyện`, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    pauseOnHover: false,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                })
+            }
+        })
+
+        socket.on('leave_room', (data: {
+            roomId: string,
+            user: IUser
+        }) => {
+            if (data.user._id === user?.body._id) {
+                dispatch(deleteRoom(data.roomId))
+                return;
+            }
+            toast.info(`${data.user.full_name} đã rời khỏi cuộc trò chuyện`, {
+                position: "top-right",
+                autoClose: 3000,
+                pauseOnHover: false,
+                hideProgressBar: false,
+                closeOnClick: true,
+            })
+        })
+
         return () => {
             socket.off('friend_pending');
             socket.off('friend_accept');
             socket.off('friend_cancel');
+            socket.off('new_room');
+            socket.off('delete_room');
+            socket.off('leave_room')
         }
-    }, [data])
+
+    }, [user])
 
     return (
         <SocketContext.Provider value={socket}>
@@ -77,5 +124,5 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
         </SocketContext.Provider>
     );
 };
-
+// @ts-ignore
 export default SocketProvider;

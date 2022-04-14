@@ -41,7 +41,6 @@ const ItemFriendComponent: React.FC<ItemFriend> = ({user}) => {
     };
 
     const handleConfirmCancel = async () => {
-
         await cancelFriendApi(user._id).then((res: any) => {
             if (!res.error) {
                 dispatch(cancelFriend(user._id));
@@ -56,7 +55,6 @@ const ItemFriendComponent: React.FC<ItemFriend> = ({user}) => {
                 })
             }
         })
-        setOpenCancelFriend(false);
         handleClose();
     };
 

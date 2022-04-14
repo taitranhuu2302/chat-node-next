@@ -5,6 +5,11 @@ import {IResponseObject} from "../models/ResponseObject";
 
 const BASE_URL = process.env.URL_API;
 
+type RequestCreateRoom = {
+    name: string;
+    members: string[];
+}
+
 export const roomService = createApi({
     reducerPath: "roomService",
     baseQuery: fetchBaseQuery({
@@ -24,8 +29,23 @@ export const roomService = createApi({
         }>, string>({
             query: (id) => `/${id}`,
             providesTags: ['IRoom'],
+        }),
+        createRoom: build.mutation<IRoom, RequestCreateRoom>({
+            query: (data) => ({
+                method: 'POST',
+                url: `/`,
+                body: data
+            }),
+            invalidatesTags: ['IRoom'],
+        }),
+        leaveRoom: build.mutation<void, string>({
+            query: (id) => ({
+                method: 'GET',
+                url: `/leave-room/${id}`,
+            }),
+            invalidatesTags: ['IRoom'],
         })
     })
 })
 
-export const {useGetRoomQuery} = roomService;
+export const {useGetRoomQuery, useCreateRoomMutation, useLeaveRoomMutation} = roomService;

@@ -38,7 +38,10 @@ const DialogConfirmComponent = ({open, setOpen, handleConfirm, message, title}: 
             </DialogContent>
             <DialogActions>
                 <Button variant={'outlined'} color={'error'} onClick={handleClose}>Cancel</Button>
-                <Button variant={'outlined'} color={'success'} onClick={handleConfirm} autoFocus>
+                <Button variant={'outlined'} color={'success'} onClick={() => {
+                    handleConfirm();
+                    handleClose();
+                }} autoFocus>
                     OK
                 </Button>
             </DialogActions>
