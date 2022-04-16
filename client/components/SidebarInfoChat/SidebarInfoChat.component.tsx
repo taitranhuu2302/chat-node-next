@@ -21,8 +21,14 @@ import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import EditIcon from '@mui/icons-material/Edit';
 import PhotoIcon from '@mui/icons-material/Photo';
 import DialogChangeNameRoomComponent from "./DialogChangeNameRoom.component";
-import {useChangeRoomAvatarMutation, useChangeRoomNameMutation} from "../../app/services/Room.service";
+import {
+    useAddMemberToRoomMutation,
+    useChangeRoomAvatarMutation,
+    useChangeRoomNameMutation
+} from "../../app/services/Room.service";
 import {toast} from "react-toastify";
+import AddIcon from '@mui/icons-material/Add';
+import DialogAddMemberComponent from "./DialogAddMember.component";
 
 interface IProps {
     open: boolean;
@@ -38,8 +44,10 @@ const SidebarInfoChatComponent: React.FC<IProps> = ({room, open, setOpen}) => {
     const [changeRoomNameApi] = useChangeRoomNameMutation();
     const {user} = useAppSelector((state: RootState) => state.userSlice);
     const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogAdd, setOpenDialogAdd] = useState(false);
     const avatarRef = React.useRef<any>(null);
     const [changeRoomAvatarApi] = useChangeRoomAvatarMutation();
+    const [addMemberToRoomApi] = useAddMemberToRoomMutation();
 
     const [openAccor, setOpenAccor] = React.useState({
         info: false,
@@ -123,6 +131,28 @@ const SidebarInfoChatComponent: React.FC<IProps> = ({room, open, setOpen}) => {
         }
     };
 
+    const onConfirmAddMember = async (members: IUser[]) => {
+        await addMemberToRoomApi({
+            roomId: room._id,
+            members
+        }).then((res: any) => {
+            if (!res.error) {
+                setOpenDialogAdd(false);
+                toast.success('Thêm thành công', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    pauseOnHover: false
+                });
+            } else {
+                toast.error('Thêm thất bại', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    pauseOnHover: false
+                });
+            }
+        })
+    }
+
     return <Drawer
         anchor="right"
         open={open}
@@ -179,6 +209,18 @@ const SidebarInfoChatComponent: React.FC<IProps> = ({room, open, setOpen}) => {
                     </ListItemButton>
                     <Collapse in={openAccor['members']} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
+                            <ListItemButton onClick={() => setOpenDialogAdd(true)}>
+                                <ListItemIcon>
+                                    <AddIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Thêm thành viên"/>
+                            </ListItemButton>
+                            <DialogAddMemberComponent
+                                open={openDialogAdd}
+                                handleClose={() => setOpenDialogAdd(false)}
+                                onConfirm={onConfirmAddMember}
+                                room={room}
+                            />
                             {room?.members.map((u, index) => {
                                 return (
                                     <ListItemButton key={index} sx={{pl: 4}}>

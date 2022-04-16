@@ -29,7 +29,6 @@ const InputSearch = styled(InputBase)(() => ({
 const SidebarChatComponent = () => {
     const [openCreateRoom, setOpenCreateRoom] = useState(false);
     const {user} = useAppSelector((state: RootState) => state.userSlice);
-    console.log(user)
     const renderItemChat = useMemo(() => {
         return user.rooms.map((room, index) => {
             if (room.room_type === PRIVATE_ROOM) {

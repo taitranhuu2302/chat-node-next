@@ -83,15 +83,21 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
             }
         });
 
+        socket.on('add_member_to_room', (message: IMessage) => {
+            if (message.room === room?._id) {
+                dispatch(sendMessage(message));
+                refetchRoom();
+            }
+        });
+
         socket.on('leave_room', async (data: {
             roomId: string,
-            message: IMessage
+            message: IMessage,
         }) => {
             if (data.message.room === room?._id) {
-                dispatch(deleteRoom(data.roomId))
                 dispatch(sendMessage(data.message))
+                refetchRoom();
             }
-            return;
         })
 
         return () => {
@@ -99,6 +105,7 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
             socket.off('leave_room');
             socket.off('change_room_name');
             socket.off('change_avatar_room');
+            socket.off('add_member_to_room');
         }
 
     }, [socket, messages, room, dispatch])

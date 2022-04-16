@@ -78,6 +78,15 @@ const SocketProvider: React.FC<IProps> = ({children}) => {
             }
         })
 
+        socket.on('user_leave_room', (data: {
+            userId: string,
+            roomId: string,
+        }) => {
+            if (data.userId === user?.body._id) {
+                dispatch(deleteRoom(data.roomId));
+            }
+        })
+
         socket.on('delete_room', (data: IRoom) => {
             dispatch(deleteRoom(data._id))
             if (data) {

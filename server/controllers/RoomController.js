@@ -57,6 +57,47 @@ class RoomController {
         }
     }
 
+    async addMemberToRoom(req, res) {
+        try {
+            const userId = req.userId;
+            const {roomId, members} = req.body;
+
+            const user = await User.findById(userId);
+            const room = await Room.findByIdAndUpdate(
+                {_id: roomId},
+                {$addToSet: {members: {$each: members}}}, {new: true})
+                .populate([
+                    {
+                        path: 'members',
+                        select: 'full_name avatar',
+                    },
+                    {
+                        path: 'owner',
+                        select: 'full_name avatar',
+                    }
+                ]);
+
+            await User.updateMany({_id: {$in: members}}, {$addToSet: {rooms: roomId}});
+
+            const messageNotify = new Message();
+            messageNotify.text = `${user.full_name} đã thêm thành viên vào nhóm`;
+            messageNotify.message_type = 'notify';
+            messageNotify.room = roomId;
+            messageNotify.owner = null;
+            messageNotify.save()
+
+            await req.io.in(roomId).emit('add_member_to_room', messageNotify);
+
+            await members.forEach((u) => {
+                req.io.in(u._id.toString()).emit('new_room', room);
+            });
+
+            return res.status(200).json(ResponseObject(200, 'Add Member To Room Success'));
+        } catch (e) {
+            return res.status(500).json(ResponseObject(500, e.message))
+        }
+    }
+
     async changeRoomName(req, res) {
         try {
             const {roomName, roomId} = req.body;
@@ -70,8 +111,6 @@ class RoomController {
             messageNotify.message_type = 'notify';
             messageNotify.room = roomId;
             messageNotify.save();
-
-            console.log(messageNotify)
 
             await req.io.in(roomId).emit('change_room_name', messageNotify);
 
@@ -155,6 +194,11 @@ class RoomController {
 
             await req.io.in(room._id.toString()).emit('leave_room', {
                 message,
+                roomId: room._id.toString(),
+            });
+
+            await req.io.in(userId).emit('user_leave_room', {
+                userId: user._id.toString(),
                 roomId: room._id.toString()
             });
 

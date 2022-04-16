@@ -2,6 +2,7 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import Cookies from "universal-cookie";
 import {IRoom} from "../models/Room";
 import {IResponseObject} from "../models/ResponseObject";
+import {IUser} from "../models/User";
 
 const BASE_URL = process.env.URL_API;
 
@@ -59,6 +60,13 @@ export const roomService = createApi({
                 body: data
             }),
         }),
+        addMemberToRoom: build.mutation<void, {roomId: string, members: IUser[]}>({
+            query: (data) => ({
+                url: '/add-member-to-room',
+                method: 'PUT',
+                body: data
+            }),
+        })
     })
 })
 
@@ -67,5 +75,6 @@ export const {
     useCreateRoomMutation,
     useLeaveRoomMutation,
     useChangeRoomNameMutation,
-    useChangeRoomAvatarMutation
+    useChangeRoomAvatarMutation,
+    useAddMemberToRoomMutation
 } = roomService;
