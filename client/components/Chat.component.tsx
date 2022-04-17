@@ -280,9 +280,8 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton>
-                                        <label htmlFor="send_image">
                                             <AttachmentIcon/>
-                                        </label>
+                                        <label className='label_wrapper' htmlFor="send_image" />
                                     </IconButton>
                                     <input type="file" ref={imageRef} onChange={onGetImage} id='send_image' hidden/>
                                     <IconButton>
