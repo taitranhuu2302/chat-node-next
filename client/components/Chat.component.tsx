@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
     Avatar,
     Box,
@@ -14,22 +14,22 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import {GROUP_ROOM, IRoom, PRIVATE_ROOM} from "../app/models/Room";
-import {useAppDispatch, useAppSelector} from "../app/hook";
-import {RootState} from "../app/store";
-import {IUser} from "../app/models/User";
-import {SubmitHandler, useForm} from "react-hook-form";
-import {useSendMessageMutation} from "../app/services/Message.service";
-import {SocketContext} from "../context/SocketProvider";
-import {IMessage} from "../app/models/Message";
-import {sendMessage} from "../app/features/Message.slice";
+import { GROUP_ROOM, IRoom, PRIVATE_ROOM } from "../app/models/Room";
+import { useAppDispatch, useAppSelector } from "../app/hook";
+import { RootState } from "../app/store";
+import { IUser } from "../app/models/User";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useSendMessageMutation } from "../app/services/Message.service";
+import { SocketContext } from "../context/SocketProvider";
+import { IMessage } from "../app/models/Message";
+import { sendMessage } from "../app/features/Message.slice";
 import CloseIcon from '@mui/icons-material/Close';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import Fancybox from "./Fancybox";
 import InfoIcon from '@mui/icons-material/Info';
 import SidebarInfoChatComponent from "./SidebarInfoChat/SidebarInfoChat.component";
-import {deleteRoom} from "../app/features/User.slice";
-import {useGetUserQuery} from "../app/services/User.service";
+import { deleteRoom } from "../app/features/User.slice";
+import { useGetUserQuery } from "../app/services/User.service";
 
 export interface IChat {
     room: IRoom;
@@ -47,19 +47,19 @@ type Image = {
     id: string;
 }
 
-const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchRoom}) => {
+const ChatComponent: React.FC<IChat> = ({ room, onGetMore, totalMessage, refetchRoom }) => {
     const socket = useContext(SocketContext);
     const [sendMessageApi] = useSendMessageMutation();
-    const {user} = useAppSelector((state: RootState) => state.userSlice)
-    const {messages} = useAppSelector((state: RootState) => state.messageSlice);
+    const { user } = useAppSelector((state: RootState) => state.userSlice)
+    const { messages } = useAppSelector((state: RootState) => state.messageSlice);
     const [roomName, setRoomName] = useState("");
     const [roomAvatar, setRoomAvatar] = useState("");
-    const {register, handleSubmit, setValue} = useForm<Inputs>();
+    const { register, handleSubmit, setValue } = useForm<Inputs>();
     const dispatch = useAppDispatch();
     const [images, setImages] = useState<Image[]>([]);
     const imageRef = useRef<any>(null)
     const [open, setOpen] = useState(false);
-    const {refetch: refetchUser} = useGetUserQuery();
+    const { refetch: refetchUser } = useGetUserQuery();
 
     useEffect(() => {
         socket.on('chat_message', (message: IMessage) => {
@@ -108,7 +108,7 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
             socket.off('add_member_to_room');
         }
 
-    }, [socket, messages, room, dispatch])
+    }, [socket, messages, room, dispatch, refetchRoom, refetchUser])
 
     useEffect(() => {
         if (room) {
@@ -164,12 +164,12 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                         <Box key={index} className={`${styles.wrapperContent} ${styles.contentRight}`}>
                             <Tooltip title={message.owner.full_name}>
                                 <Avatar src={message.owner.avatar}
-                                        sx={{
-                                            width: '32px',
-                                            height: '32px',
-                                            alignSelf: 'flex-end',
-                                            marginBottom: '8px'
-                                        }}/>
+                                    sx={{
+                                        width: '32px',
+                                        height: '32px',
+                                        alignSelf: 'flex-end',
+                                        marginBottom: '8px'
+                                    }} />
                             </Tooltip>
                             <Box className={styles.content}>
                                 {message.text && <Typography className={styles.text}>{message.text}</Typography>}
@@ -177,7 +177,7 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                                     <Box className={styles.wrapperMessageImage}>
                                         {message.image.map((img, index) => {
                                             return <a key={index} data-fancybox="gallery" href={img}>
-                                                <img src={img} alt=""/>
+                                                <img src={img} alt="" />
                                             </a>
                                         })}
                                     </Box>
@@ -189,14 +189,14 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                     return <Box key={index} className={`${styles.wrapperContent} ${styles.contentLeft}`}>
                         <Tooltip title={message.owner.full_name}>
                             <Avatar src={message.owner.avatar}
-                                    sx={{width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px'}}/>
+                                sx={{ width: '32px', height: '32px', alignSelf: 'flex-end', marginBottom: '8px' }} />
                         </Tooltip>
                         <Box className={styles.content}>
                             {message.text && <Typography className={styles.text}>{message.text}</Typography>}
                             <Box className={styles.wrapperMessageImage}>
                                 {message.image && message.image.map((img, index) => {
                                     return <a key={index} data-fancybox="gallery" href={img}>
-                                        <img src={img} alt=""/>
+                                        <img src={img} alt="" />
                                     </a>
                                 })}
                             </Box>
@@ -218,11 +218,22 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
         setImages(images.filter(img => img.id !== id));
     }
 
+    const renderButtonLoadMessage = useMemo(() => {
+        return (messages.length !== totalMessage && messages.length >= 10) &&
+            <Box display={'flex'} justifyContent={'center'}>
+                <ButtonBase
+                    onClick={() => onGetMore(10)}
+                    sx={{ padding: '6px 12px', backgroundColor: '#fff', borderRadius: '4px', fontSize: '14px' }}>
+                    Xem thêm
+                </ButtonBase>
+            </Box>
+    }, [messages.length, onGetMore, totalMessage])
+
     return (
         <Box className={styles.root}>
             <Box className={styles.chatHeader}>
                 <Box className={styles.title}>
-                    <Avatar src={roomAvatar}/>
+                    <Avatar src={roomAvatar} />
                     <Box>
                         <Typography variant="h6">{roomName}</Typography>
                         <Typography variant="caption">Online</Typography>
@@ -230,32 +241,23 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                 </Box>
                 <Box className={styles.actions}>
                     <Button className={styles.buttonGreen}>
-                        <LocalPhoneIcon/>
+                        <LocalPhoneIcon />
                     </Button>
                     <Button className={styles.buttonGray}>
-                        <VideocamIcon/>
+                        <VideocamIcon />
                     </Button>
                     {room.room_type === GROUP_ROOM &&
                         <Button onClick={() => setOpen(true)} className={styles.buttonGray}>
-                            <InfoIcon/>
+                            <InfoIcon />
                         </Button>}
-                    <SidebarInfoChatComponent room={room} open={open} setOpen={setOpen}/>
+                    <SidebarInfoChatComponent room={room} open={open} setOpen={setOpen} />
                 </Box>
             </Box>
             <Box className={styles.chatContent}>
                 <Fancybox>
                     {renderChat}
-
                 </Fancybox>
-                {(messages.length !== totalMessage && messages.length > 10) &&
-                    <Box display={'flex'} justifyContent={'center'}>
-                        <ButtonBase
-                            onClick={() => onGetMore(10)}
-                            sx={{padding: '6px 12px', backgroundColor: '#fff', borderRadius: '4px', fontSize: '14px'}}>
-                            Xem thêm
-                        </ButtonBase>
-                    </Box>
-                }
+                {renderButtonLoadMessage}
             </Box>
             <Box className={styles.chatFooter}>
                 {images.length > 0 && (
@@ -263,10 +265,10 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                         {images.map((image, index) => {
                             return <Box key={index} className={styles.wrapperImage}>
                                 <IconButton onClick={() => handleRemoveImage(image.id)}
-                                            className={styles.buttonCloseImage}>
-                                    <CloseIcon/>
+                                    className={styles.buttonCloseImage}>
+                                    <CloseIcon />
                                 </IconButton>
-                                <img src={image.src} alt="image"/>
+                                <img src={image.src} alt="image" />
                             </Box>
                         })}
                     </Box>
@@ -280,15 +282,15 @@ const ChatComponent: React.FC<IChat> = ({room, onGetMore, totalMessage, refetchR
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton>
-                                            <AttachmentIcon/>
+                                        <AttachmentIcon />
                                         <label className='label_wrapper' htmlFor="send_image" />
                                     </IconButton>
-                                    <input type="file" ref={imageRef} onChange={onGetImage} id='send_image' hidden/>
+                                    <input type="file" ref={imageRef} onChange={onGetImage} id='send_image' hidden />
                                     <IconButton>
-                                        <MicIcon/>
+                                        <MicIcon />
                                     </IconButton>
-                                    <IconButton type="submit" sx={{color: "#0abb87"}}>
-                                        <SendIcon/>
+                                    <IconButton type="submit" sx={{ color: "#0abb87" }}>
+                                        <SendIcon />
                                     </IconButton>
                                 </InputAdornment>
                             ),

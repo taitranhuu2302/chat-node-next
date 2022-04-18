@@ -1,11 +1,11 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {IUser} from "../models/User";
-import {IRoom} from "../models/Room";
-import {userService} from "../services/User.service";
-import {IResponseObject} from "../models/ResponseObject";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { IUser } from "../models/User";
+import { IRoom } from "../models/Room";
+import { userService } from "../services/User.service";
+import { IResponseObject } from "../models/ResponseObject";
 
 interface IState {
-    user: IUser
+    user: IUser;
 }
 
 const initialState: IState = {
@@ -20,7 +20,7 @@ const initialState: IState = {
         friends: [],
         friend_pending: [],
         is_first_login: false,
-    }
+    },
 };
 
 const userSlice = createSlice({
@@ -31,7 +31,9 @@ const userSlice = createSlice({
             state.user.friend_pending.push(action.payload);
         },
         removeFriendRequest: (state, action: PayloadAction<{ userId: string }>) => {
-            state.user.friend_pending = state.user.friend_pending.filter(friend => friend._id !== action.payload.userId);
+            state.user.friend_pending = state.user.friend_pending.filter(
+                (friend) => friend._id !== action.payload.userId
+            );
         },
         addRoom: (state, action: PayloadAction<IRoom>) => {
             state.user.rooms.push(action.payload);
@@ -39,22 +41,24 @@ const userSlice = createSlice({
         addFriend: (state, action: PayloadAction<IUser>) => {
             state.user.friends.push(action.payload);
         },
-        cancelFriend: (state, {payload}: PayloadAction<string>) => {
-            state.user.friends = state.user.friends.filter(friend => friend._id !== payload);
+        cancelFriend: (state, { payload }: PayloadAction<string>) => {
+            state.user.friends = state.user.friends.filter((friend) => friend._id !== payload);
         },
         newRoom: (state, action: PayloadAction<IRoom>) => {
             state.user.rooms.push(action.payload);
         },
-        deleteRoom: (state, {payload}: PayloadAction<string>) => {
-            state.user.rooms = state.user.rooms.filter(room => room._id !== payload);
+        deleteRoom: (state, { payload }: PayloadAction<string>) => {
+            state.user.rooms = state.user.rooms.filter((room) => room._id !== payload);
         },
     },
     extraReducers: (builder) => {
-        builder.addMatcher(userService.endpoints.getUser.matchFulfilled,
-            (state, {payload}: PayloadAction<IResponseObject<IUser>>) => {
+        builder.addMatcher(
+            userService.endpoints.getUser.matchFulfilled,
+            (state, { payload }: PayloadAction<IResponseObject<IUser>>) => {
                 state.user = payload.body;
-            });
-    }
+            }
+        );
+    },
 });
 
 export const {
@@ -64,7 +68,7 @@ export const {
     addFriend,
     cancelFriend,
     newRoom,
-    deleteRoom
+    deleteRoom,
 } = userSlice.actions;
 
 export default userSlice.reducer;

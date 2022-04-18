@@ -15,5 +15,9 @@ module.exports = withImage({
         URL_LOGIN_GOOGLE_CALLBACK: process.env.URL_LOGIN_GOOGLE_CALLBACK,
         URL_LOGIN_FACEBOOK: process.env.URL_LOGIN_FACEBOOK,
         URL_LOGIN_FACEBOOK_CALLBACK: process.env.URL_LOGIN_FACEBOOK_CALLBACK
+    },
+    images: {
+        domains: ['localhost']
     }
+
 })

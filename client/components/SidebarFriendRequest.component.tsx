@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Avatar,
     Box,
@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import styles from "../styles/SidebarFriendRequest.module.scss";
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
-import {IUser} from "../app/models/User";
-import {useAppDispatch, useAppSelector} from "../app/hook";
-import {RootState} from "../app/store";
-import {useAcceptFriendRequestMutation, useRemoveFriendRequestMutation} from "../app/services/User.service";
-import {removeFriendRequest} from "../app/features/User.slice";
-import {toast} from "react-toastify";
+import { IUser } from "../app/models/User";
+import { useAppDispatch, useAppSelector } from "../app/hook";
+import { RootState } from "../app/store";
+import { useAcceptFriendRequestMutation, useRemoveFriendRequestMutation } from "../app/services/User.service";
+import { removeFriendRequest } from "../app/features/User.slice";
+import { toast } from "react-toastify";
 import DialogConfirmComponent from "./DialogConfirm.component";
 
 
@@ -27,7 +27,23 @@ interface IItem {
 }
 
 const SidebarFriendRequestComponent = () => {
-    const {user} = useAppSelector((state: RootState) => state.userSlice)
+    const { user } = useAppSelector((state: RootState) => state.userSlice)
+    const [listFriend, setListFriend] = useState<IUser[]>([]);
+    const [keyword, setKeyword] = useState<string>("");
+
+    useEffect(() => {
+        setListFriend(user.friend_pending)
+    }, [user])
+
+    const renderFriendRequest = useMemo(() => {
+        return listFriend.map((friend, index) => {
+            if (friend.full_name.toLowerCase().includes(keyword.toLowerCase())) {
+                return <Item key={index} user={friend} />
+            }
+        })
+    }, [listFriend, keyword])
+
+
 
     return <Card variant="outlined" className={styles.root}>
         <CardContent className={styles.cardContent}>
@@ -35,23 +51,21 @@ const SidebarFriendRequestComponent = () => {
                 <Typography className={styles.title}>Lời mời kết bạn</Typography>
             </Box>
             <Box className={styles.cardSearch}>
-                <InputBase className={styles.inputSearch} placeholder="Search"/>
+                <InputBase className={styles.inputSearch} placeholder="Search" value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                />
             </Box>
             <List className={styles.list}>
-                {
-                    user.friend_pending.map((friend, index) => {
-                        return <Item key={index} user={friend}/>
-                    })
-                }
+                {renderFriendRequest}
             </List>
         </CardContent>
     </Card>
 }
 
 
-const Item: React.FC<IItem> = ({user}) => {
-    const [removeFriendRequestApi, {}] = useRemoveFriendRequestMutation();
-    const [acceptFriendRequestApi, {}] = useAcceptFriendRequestMutation();
+const Item: React.FC<IItem> = ({ user }) => {
+    const [removeFriendRequestApi, { }] = useRemoveFriendRequestMutation();
+    const [acceptFriendRequestApi, { }] = useAcceptFriendRequestMutation();
     const [openConfirmCancel, setOpenConfirmCancel] = useState(false);
     const [openConfirmAccept, setOpenConfirmAccept] = useState(false);
     const dispatch = useAppDispatch();
@@ -138,15 +152,15 @@ const Item: React.FC<IItem> = ({user}) => {
     return (
         <>
             <ListItem
-                sx={{padding: 0}}
+                sx={{ padding: 0 }}
                 secondaryAction={
                     <IconButton onClick={handleClick}>
-                        <MoreHorizOutlinedIcon/>
+                        <MoreHorizOutlinedIcon />
                     </IconButton>
                 }
             >
                 <ListItemAvatar>
-                    <Avatar src={user.avatar || ""}/>
+                    <Avatar src={user.avatar || ""} />
                 </ListItemAvatar>
                 <Tooltip title={user.email}>
                     <ListItemText primary={
@@ -157,7 +171,7 @@ const Item: React.FC<IItem> = ({user}) => {
                             component={'p'}>
                             {user.email}
                         </Typography>
-                    }/>
+                    } />
                 </Tooltip>
                 <Menu
                     id="basic-menu"

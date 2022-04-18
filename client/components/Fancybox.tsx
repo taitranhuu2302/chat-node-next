@@ -14,7 +14,7 @@ function Fancybox(props: any) {
         return () => {
             NativeFancybox.destroy();
         };
-    }, []);
+    }, [delegate, props.options]);
 
     return <>{props.children}</>;
 }
